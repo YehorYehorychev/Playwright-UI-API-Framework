@@ -1,0 +1,28 @@
+{
+  "name": "playwright-mcp-tests",
+  "version": "1.0.0",
+  "description": "Playwright project with MCP server for AI-assisted test generation",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report",
+    "mcp:start": "node ./node_modules/@executeautomation/playwright-mcp-server/dist/index.js"
+  },
+  "keywords": [
+    "playwright",
+    "testing",
+    "mcp",
+    "ai-testing"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@executeautomation/playwright-mcp-server": "^1.0.12",
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.2.3"
+  }
+}
