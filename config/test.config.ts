@@ -1,0 +1,70 @@
+import * as dotenv from "dotenv";
+import * as path from "path";
+
+// Load environment variables
+dotenv.config();
+
+export interface TestConfig {
+  baseURL: string;
+  apiBaseURL: string;
+  browser: "chromium" | "firefox" | "webkit";
+  headless: boolean;
+  viewport: {
+    width: number;
+    height: number;
+  };
+  timeouts: {
+    default: number;
+    navigation: number;
+    api: number;
+  };
+  retryCount: number;
+  workers: number;
+  allure: {
+    resultsDir: string;
+    reportDir: string;
+  };
+  screenshots: {
+    onFailure: boolean;
+  };
+  video: {
+    onFailure: boolean;
+  };
+  trace: {
+    onFailure: boolean;
+  };
+}
+
+export const config: TestConfig = {
+  baseURL: process.env.BASE_URL || "https://mobalytics.gg",
+  apiBaseURL: process.env.API_BASE_URL || "https://api.mobalytics.gg",
+  browser:
+    (process.env.BROWSER as "chromium" | "firefox" | "webkit") || "chromium",
+  headless: process.env.HEADLESS === "true",
+  viewport: {
+    width: parseInt(process.env.VIEWPORT_WIDTH || "1920", 10),
+    height: parseInt(process.env.VIEWPORT_HEIGHT || "1080", 10),
+  },
+  timeouts: {
+    default: parseInt(process.env.DEFAULT_TIMEOUT || "30000", 10),
+    navigation: parseInt(process.env.NAVIGATION_TIMEOUT || "60000", 10),
+    api: parseInt(process.env.API_TIMEOUT || "15000", 10),
+  },
+  retryCount: parseInt(process.env.RETRY_COUNT || "2", 10),
+  workers: parseInt(process.env.PARALLEL_WORKERS || "4", 10),
+  allure: {
+    resultsDir: process.env.ALLURE_RESULTS_DIR || "allure-results",
+    reportDir: process.env.ALLURE_REPORT_DIR || "allure-report",
+  },
+  screenshots: {
+    onFailure: process.env.SCREENSHOT_ON_FAILURE === "true",
+  },
+  video: {
+    onFailure: process.env.VIDEO_ON_FAILURE === "true",
+  },
+  trace: {
+    onFailure: process.env.TRACE_ON_FAILURE === "true",
+  },
+};
+
+export default config;
