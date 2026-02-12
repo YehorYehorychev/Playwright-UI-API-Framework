@@ -120,7 +120,7 @@ export class BasePage {
   async acceptCookiesIfPresent(): Promise<void> {
     try {
       const acceptButton = this.page.locator(
-        'button:has-text("Accept"), button:has-text("Принять")',
+        'button:has-text("Accept"), button:has-text("Accept All"), button:has-text("I Agree")',
       );
       if (await this.isVisible(acceptButton)) {
         await this.click(acceptButton);

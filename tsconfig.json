@@ -15,7 +15,7 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": ".",
-    "types": ["node", "@playwright/test"],
+    "types": ["node"],
     "typeRoots": ["./node_modules/@types"],
     "baseUrl": ".",
     "paths": {
