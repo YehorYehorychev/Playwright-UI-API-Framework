@@ -1,10 +1,10 @@
-import { test as base } from "@playwright/test";
+import { test as base, Page } from "@playwright/test";
 import { HomePage } from "../pages/HomePage";
 import { loginViaAPI } from "../helpers/auth.helper";
 
 type MyFixtures = {
   homePage: HomePage;
-  authenticatedPage: any; // Page with authenticated session
+  authenticatedPage: Page; // Page with authenticated session
 };
 
 export const test = base.extend<MyFixtures>({
