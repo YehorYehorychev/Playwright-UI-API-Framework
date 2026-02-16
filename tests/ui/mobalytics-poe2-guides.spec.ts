@@ -1,46 +1,35 @@
 import { test, expect } from "../../src/fixtures/test.fixtures";
 
 test.describe("POE2 Navigation Tests", () => {
-  test("should navigate to POE2 guides and open specific guide", async ({
-    authenticatedPage,
+  test("should navigate from home to POE2 page", async ({
+    homePage,
+    poe2Page,
   }) => {
-    // Step 1: Navigate to home page
-    await authenticatedPage.goto("https://mobalytics.gg");
+    await homePage.navigate();
+    await poe2Page.navigateFromHome();
+    await poe2Page.verifyOnPOE2Page();
+    console.log("✅ Successfully navigated to POE2 page");
+  });
 
-    // Wait for navigation to be visible
-    await authenticatedPage.getByRole("link", { name: "PoE2" }).waitFor();
+  test("should navigate to POE2 guides page", async ({ poe2Page }) => {
+    // Navigate directly to POE2 page (faster than navigating from home)
+    await poe2Page.goto(`${process.env.BASE_URL}/poe-2`);
+    await poe2Page.verifyOnPOE2Page();
 
-    // Step 2: Click on POE2 in navigation
-    await authenticatedPage.getByRole("link", { name: "PoE2" }).click();
+    await poe2Page.navigateToGuides();
+    await poe2Page.verifyOnGuidesPage();
+    console.log("✅ Successfully navigated to Guides page");
+  });
 
-    // Verify we're on POE2 page
-    await expect(authenticatedPage).toHaveURL(/.*poe-2.*/);
-    console.log("✅ Navigated to POE2 page");
+  test("should open specific guide from guides page", async ({ poe2Page }) => {
+    // Navigate directly to guides page (faster)
+    await poe2Page.goto(`${process.env.BASE_URL}/poe-2/guides`);
+    await poe2Page.verifyOnGuidesPage();
 
-    // Step 3: Click on "Go to Guides Page" button
-    await authenticatedPage
-      .getByRole("button", { name: "Go to Guides Page" })
-      .click();
-
-    // Verify we're on guides page
-    await expect(authenticatedPage).toHaveURL(/.*\/poe-2\/guides$/);
-    console.log("✅ Navigated to Guides page");
-
-    // Step 4: Find and click on "The Last of the Druids" guide
-    await authenticatedPage
-      .getByRole("link", { name: "The Last of the Druids:" })
-      .click();
-
-    // Wait for URL to change to the guide page
-    await authenticatedPage.waitForURL(
+    await poe2Page.openGuideByTitle("The Last of the Druids");
+    await poe2Page.verifyGuideOpened(
       /.*0-4-the-last-of-the-druids-content-livestream-summary$/,
     );
-    console.log("✅ Opened 'The Last of the Druids' guide");
-
-    // Take a screenshot for verification
-    await authenticatedPage.screenshot({
-      path: "test-results/poe2-guide-opened.png",
-      fullPage: true,
-    });
+    console.log("✅ Successfully opened 'The Last of the Druids' guide");
   });
 });

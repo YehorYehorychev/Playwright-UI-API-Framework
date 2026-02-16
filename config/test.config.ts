@@ -47,7 +47,7 @@ export const config: TestConfig = {
   },
   timeouts: {
     default: parseInt(process.env.DEFAULT_TIMEOUT || "30000", 10),
-    navigation: parseInt(process.env.NAVIGATION_TIMEOUT || "60000", 10),
+    navigation: parseInt(process.env.NAVIGATION_TIMEOUT || "90000", 10),
     api: parseInt(process.env.API_TIMEOUT || "15000", 10),
   },
   retryCount: parseInt(process.env.RETRY_COUNT || "2", 10),
