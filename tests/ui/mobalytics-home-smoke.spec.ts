@@ -1,6 +1,6 @@
 import { test, expect } from "../../src/fixtures/test.fixtures";
 
-test.describe("Mobalytics Home Page", () => {
+test.describe("Mobalytics Home Page - Smoke Tests", () => {
   test.beforeEach(async ({ homePage }) => {
     await homePage.navigate();
   });
