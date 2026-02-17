@@ -46,7 +46,8 @@ export const TestData = {
     home: "/",
     lol: "/lol",
     tft: "/tft",
-    poe2: "/poe2",
+    poe2: "/poe-2",
+    poe2Guides: "/poe-2/guides",
     diablo4: "/diablo4",
     valorant: "/valorant",
     blog: "/blog",
@@ -58,11 +59,19 @@ export const TestData = {
   urlPatterns: {
     lol: /.*lol.*/,
     tft: /.*tft.*/,
-    poe2: /.*poe2.*/,
+    poe2: /.*\/poe-2.*/,
+    poe2Guides: /.*\/poe-2\/guides.*/,
     diablo4: /.*diablo4.*/,
     valorant: /.*valorant.*/,
     blog: /.*blog.*/,
     downloadOverwolf: /.*download\.overwolf\.com.*/,
+  },
+
+  /**
+   * API endpoint paths — combined with `apiBaseURL` from config.
+   */
+  api: {
+    graphqlEndpoint: "/api/graphql/v1/query",
   },
 
   /**

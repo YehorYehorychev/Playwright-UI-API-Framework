@@ -43,6 +43,12 @@ export const Tags = {
   /** Tests that require an authenticated session. */
   authenticated: "@authenticated",
 
+  /** Tests scoped to the POE2 section. */
+  poe2: "@poe2",
+
+  /** Authentication-specific tests (login, logout, session). */
+  auth: "@auth",
+
   /** Verifies specific page sections / components. */
   hero: "@hero",
   gameLogos: "@game-logos",

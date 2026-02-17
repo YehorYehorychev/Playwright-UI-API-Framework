@@ -1,96 +1,122 @@
 import { test, expect } from "../../src/fixtures/test.fixtures";
+import { Tags } from "../../src/data/tags";
+import { TestData } from "../../src/data/test-data";
 
-test.describe("Mobalytics Home Page - Smoke Tests", () => {
-  test.beforeEach(async ({ homePage }) => {
-    await homePage.navigate();
-  });
-
-  test("should load home page successfully", async ({ homePage }) => {
-    await test.step("Verify page is loaded", async () => {
-      await homePage.verifyPageLoaded();
+/**
+ * Smoke suite for mobalytics.gg home page.
+ * These tests cover the most critical user-facing paths and must pass on every build.
+ *
+ * CLI: npx playwright test --grep @smoke
+ */
+test.describe(
+  "Mobalytics Home Page — Smoke Tests",
+  { tag: [Tags.ui, Tags.smoke] },
+  () => {
+    test.beforeEach(async ({ homePage }) => {
+      await homePage.navigate();
     });
 
-    await test.step("Verify logo is visible", async () => {
-      await expect(homePage.logo).toBeVisible();
-    });
-  });
+    test(
+      "should load home page successfully",
+      { tag: Tags.critical },
+      async ({ homePage }) => {
+        await test.step("Verify page is loaded", async () => {
+          await homePage.verifyPageLoaded();
+        });
 
-  test("should display correct page title", async ({ homePage }) => {
-    await test.step("Verify page title contains Mobalytics", async () => {
-      await homePage.verifyPageTitle("Mobalytics");
-    });
-  });
+        await test.step("Verify logo is visible", async () => {
+          await expect(homePage.logo).toBeVisible();
+        });
+      },
+    );
 
-  test("should display main heading with million gamers text", async ({
-    homePage,
-    page,
-  }) => {
-    await test.step('Verify "10 MILLION GAMERS" text is visible', async () => {
-      await homePage.verifyJoinMillionGamersText();
-    });
-  });
+    test(
+      "should display correct page title",
+      { tag: Tags.critical },
+      async ({ homePage }) => {
+        await test.step("Verify page title contains Mobalytics", async () => {
+          await homePage.verifyPageTitle("Mobalytics");
+        });
+      },
+    );
 
-  test("should display download button", async ({ homePage }) => {
-    await test.step("Verify download button is visible", async () => {
-      await homePage.verifyDownloadButtonVisible();
-    });
+    test(
+      "should display main heading with million gamers text",
+      {},
+      async ({ homePage }) => {
+        await test.step(`Verify "${TestData.ui.homepage.gamersCount}" text is visible`, async () => {
+          await homePage.verifyJoinMillionGamersText();
+        });
+      },
+    );
 
-    await test.step("Verify download button contains correct text", async () => {
-      const buttonText = await homePage.getDownloadButtonText();
-      expect(buttonText.toUpperCase()).toContain("DOWNLOAD");
-    });
-  });
+    test(
+      "should display download button",
+      { tag: Tags.critical },
+      async ({ homePage }) => {
+        await test.step("Verify download button is visible", async () => {
+          await homePage.verifyDownloadButtonVisible();
+        });
 
-  test("should display game cards", async ({ homePage }) => {
-    await test.step("Verify League of Legends card is visible", async () => {
-      await expect(homePage.lolGameCard).toBeVisible();
-    });
+        await test.step("Verify download button contains correct text", async () => {
+          const buttonText = await homePage.getDownloadButtonText();
+          expect(buttonText.toUpperCase()).toContain("DOWNLOAD");
+        });
+      },
+    );
 
-    await test.step("Verify Teamfight Tactics card is visible", async () => {
-      await expect(homePage.tftGameCard).toBeVisible();
-    });
-  });
+    test("should display game cards", {}, async ({ homePage }) => {
+      await test.step("Verify League of Legends card is visible", async () => {
+        await expect(homePage.lolGameCard).toBeVisible();
+      });
 
-  test("should display navigation menu items", async ({ homePage }) => {
-    await test.step("Verify LOL navigation item", async () => {
-      await expect(homePage.navLOL).toBeVisible();
-    });
-
-    await test.step("Verify TFT navigation item", async () => {
-      await expect(homePage.navTFT).toBeVisible();
-    });
-
-    await test.step("Verify POE2 navigation item", async () => {
-      await expect(homePage.navPOE2).toBeVisible();
-    });
-  });
-
-  test("should have all main elements visible", async ({ homePage, page }) => {
-    await test.step("Take full page screenshot", async () => {
-      await page.screenshot({
-        path: "test-results/screenshots/home-page.png",
-        fullPage: true,
+      await test.step("Verify Teamfight Tactics card is visible", async () => {
+        await expect(homePage.tftGameCard).toBeVisible();
       });
     });
 
-    await test.step("Verify all key elements are present", async () => {
-      // Logo
-      await expect(homePage.logo).toBeVisible();
+    test(
+      "should display navigation menu items",
+      { tag: Tags.navigation },
+      async ({ homePage }) => {
+        await test.step("Verify LOL navigation item", async () => {
+          await expect(homePage.navLOL).toBeVisible();
+        });
 
-      // Main heading/banner
-      await expect(homePage.joinGamersText).toBeVisible();
+        await test.step("Verify TFT navigation item", async () => {
+          await expect(homePage.navTFT).toBeVisible();
+        });
 
-      // Download button
-      await expect(homePage.downloadButton).toBeVisible();
+        await test.step("Verify POE2 navigation item", async () => {
+          await expect(homePage.navPOE2).toBeVisible();
+        });
+      },
+    );
 
-      // At least one game card
-      const gameCardsVisible =
-        (await homePage.lolGameCard.isVisible()) ||
-        (await homePage.tftGameCard.isVisible());
-      expect(gameCardsVisible).toBeTruthy();
+    test(
+      "should have all main elements visible",
+      { tag: Tags.critical },
+      async ({ homePage, page }) => {
+        await test.step("Take full page screenshot", async () => {
+          await page.screenshot({
+            path: "test-results/screenshots/home-page-smoke.png",
+            fullPage: true,
+          });
+        });
 
-      // Navigation menu
-      await expect(homePage.navLOL).toBeVisible();
-    });
-  });
-});
+        await test.step("Verify all key elements are present", async () => {
+          await expect(homePage.logo).toBeVisible();
+          await expect(homePage.joinGamersText).toBeVisible();
+          await expect(homePage.downloadButton).toBeVisible();
+
+          const gameCardsVisible =
+            (await homePage.lolGameCard.isVisible()) ||
+            (await homePage.tftGameCard.isVisible());
+          expect(gameCardsVisible).toBeTruthy();
+
+          await expect(homePage.navLOL).toBeVisible();
+        });
+      },
+    );
+  },
+);
