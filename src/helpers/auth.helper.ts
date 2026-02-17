@@ -1,7 +1,11 @@
 import { APIRequestContext } from "@playwright/test";
 import dotenv from "dotenv";
+import { createLogger } from "../utils/logger";
+import { ApiError, AuthenticationError } from "../errors/test-errors";
 
 dotenv.config();
+
+const log = createLogger("AuthHelper");
 
 interface AuthResponse {
   success: boolean;
@@ -42,19 +46,32 @@ export async function loginViaAPI(
       },
     });
 
+    if (!response.ok()) {
+      throw new ApiError(
+        response.status(),
+        "SignIn mutation returned a non-2xx response",
+        apiUrl,
+      );
+    }
+
     const responseData = await response.json();
 
     if (responseData.data?.signIn === true) {
       const cookies = response.headers()["set-cookie"];
-      return {
-        success: true,
-        cookies,
-      };
+      log.info("API authentication successful");
+      return { success: true, cookies };
     }
 
+    const gqlErrors = responseData.errors
+      ?.map((e: { message: string }) => e.message)
+      .join("; ");
+    log.warn("API authentication rejected by server", { errors: gqlErrors });
     return { success: false };
   } catch (error) {
-    console.error("API login failed:", error);
+    if (error instanceof ApiError || error instanceof AuthenticationError) {
+      throw error;
+    }
+    log.error("API login request failed unexpectedly", error);
     return { success: false };
   }
 }
@@ -94,7 +111,7 @@ export async function getAccountInfo(request: APIRequestContext): Promise<any> {
     const responseData = await response.json();
     return responseData.data?.account;
   } catch (error) {
-    console.error("Failed to get account info:", error);
+    log.error("Failed to retrieve account info", error);
     return null;
   }
 }

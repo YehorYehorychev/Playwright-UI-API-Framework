@@ -1,206 +1,217 @@
 import { test, expect } from "@playwright/test";
-import dotenv from "dotenv";
+import { Tags } from "../../src/data/tags";
+import { TestData } from "../../src/data/test-data";
+import { createLogger } from "../../src/utils/logger";
+import { ApiError } from "../../src/errors/test-errors";
 
-dotenv.config();
+const log = createLogger("GraphQL-Auth");
 
-test.describe("Mobalytics API Authentication", () => {
-  const apiUrl = `${process.env.API_BASE_URL}/api/graphql/v1/query`;
-  const userEmail = process.env.USER_EMAIL;
-  const userPassword = process.env.USER_PASSWORD;
-  const userUsername = process.env.USER_USERNAME;
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared GraphQL helpers
+// ─────────────────────────────────────────────────────────────────────────────
 
-  test("should successfully login via API with email and password", async ({
-    request,
-  }) => {
-    // GraphQL mutation for authentication (based on API screenshots)
-    const signInMutation = `
-      mutation SignIn($email: String!, $password: String!, $continueFrom: String) {
-        signIn(email: $email, password: $password, continueFrom: $continueFrom)
-      }
-    `;
+const apiUrl = `${process.env.API_BASE_URL}${TestData.api.graphqlEndpoint}`;
 
-    // Send POST request with GraphQL mutation
-    const response = await request.post(apiUrl, {
-      data: {
-        operationName: "SignIn",
-        query: signInMutation,
-        variables: {
-          email: userEmail,
-          password: userPassword,
-          continueFrom: "",
-        },
+const SIGN_IN_MUTATION = `
+  mutation SignIn($email: String!, $password: String!, $continueFrom: String) {
+    signIn(email: $email, password: $password, continueFrom: $continueFrom)
+  }
+`;
+
+const ACCOUNT_QUERY = `
+  query {
+    account {
+      uid
+      email
+      login
+      level
+      referrerCode
+      referralStatus
+    }
+  }
+`;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Suite
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe(
+  "Mobalytics API Authentication",
+  { tag: [Tags.api, Tags.auth] },
+  () => {
+    test(
+      "should successfully login via API with email and password",
+      { tag: [Tags.smoke, Tags.critical] },
+      async ({ request }) => {
+        const { email, password } = TestData.credentials.validUser;
+
+        const response = await test.step("Send SignIn mutation", async () => {
+          return request.post(apiUrl, {
+            data: {
+              operationName: "SignIn",
+              query: SIGN_IN_MUTATION,
+              variables: { email, password, continueFrom: "" },
+            },
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          });
+        });
+
+        await test.step("Verify HTTP response is successful", async () => {
+          if (!response.ok()) {
+            throw new ApiError(
+              response.status(),
+              "SignIn mutation returned non-2xx response",
+              apiUrl,
+            );
+          }
+          expect(response.status()).toBe(200);
+        });
+
+        await test.step("Verify GraphQL response structure and result", async () => {
+          const responseData = await response.json();
+          log.debug("SignIn response", responseData);
+
+          expect(responseData).toHaveProperty("data");
+          expect(responseData.data).toHaveProperty("signIn");
+          expect(responseData.data.signIn).toBe(true);
+        });
+
+        await test.step("Verify authentication cookies were set", async () => {
+          const setCookieHeader = response.headers()["set-cookie"];
+          expect(setCookieHeader).toBeDefined();
+          log.info("Authentication cookies received");
+        });
       },
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+    );
+
+    test(
+      "should login and retrieve account information",
+      { tag: [Tags.regression, Tags.authenticated] },
+      async ({ request }) => {
+        const { email, password, username } = TestData.credentials.validUser;
+
+        await test.step("Login via SignIn mutation", async () => {
+          const loginResponse = await request.post(apiUrl, {
+            data: {
+              operationName: "SignIn",
+              query: SIGN_IN_MUTATION,
+              variables: { email, password, continueFrom: "" },
+            },
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          });
+
+          expect(loginResponse.ok()).toBeTruthy();
+          const loginData = await loginResponse.json();
+          expect(loginData.data.signIn).toBe(true);
+          log.info("Login step completed");
+        });
+
+        const account =
+          await test.step("Retrieve account information", async () => {
+            const accountResponse = await request.post(apiUrl, {
+              data: {
+                operationName: null,
+                query: ACCOUNT_QUERY,
+                variables: {},
+              },
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            });
+
+            expect(accountResponse.ok()).toBeTruthy();
+            const accountData = await accountResponse.json();
+            log.debug("Account response", accountData);
+            return accountData.data.account;
+          });
+
+        await test.step("Verify account data matches expected values", async () => {
+          expect(account).toHaveProperty("uid");
+          expect(account.uid).toBeTruthy();
+          expect(account.email).toBe(email);
+          expect(account.login).toBe(username);
+          expect(account).toHaveProperty("level");
+          log.info("Account verified", {
+            uid: account.uid,
+            login: account.login,
+          });
+        });
       },
-    });
+    );
 
-    // Verify response status
-    expect(response.status()).toBe(200);
-    expect(response.ok()).toBeTruthy();
+    test(
+      "should fail login with incorrect credentials",
+      { tag: Tags.regression },
+      async ({ request }) => {
+        const { email } = TestData.credentials.validUser;
+        const { password: wrongPassword } = TestData.credentials.invalidUser;
 
-    // Parse response
-    const responseData = await response.json();
-    console.log("Response:", JSON.stringify(responseData, null, 2));
+        const response =
+          await test.step("Send SignIn with wrong password", async () => {
+            return request.post(apiUrl, {
+              data: {
+                operationName: "SignIn",
+                query: SIGN_IN_MUTATION,
+                variables: { email, password: wrongPassword, continueFrom: "" },
+              },
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            });
+          });
 
-    // Verify response structure
-    expect(responseData).toHaveProperty("data");
-    expect(responseData.data).toHaveProperty("signIn");
+        await test.step("Verify login was rejected", async () => {
+          const responseData = await response.json();
+          log.debug("Rejected login response", responseData);
 
-    // signIn returns boolean (true on success)
-    const signInResult = responseData.data.signIn;
-    expect(signInResult).toBe(true);
-
-    // Verify that we received cookies for authentication
-    const setCookieHeader = response.headers()["set-cookie"];
-    expect(setCookieHeader).toBeDefined();
-
-    console.log("✅ Login successful!");
-    console.log("SignIn result:", signInResult);
-  });
-
-  test("should login and retrieve account information", async ({ request }) => {
-    // Step 1: Login
-    const signInMutation = `
-      mutation SignIn($email: String!, $password: String!, $continueFrom: String) {
-        signIn(email: $email, password: $password, continueFrom: $continueFrom)
-      }
-    `;
-
-    const loginResponse = await request.post(apiUrl, {
-      data: {
-        operationName: "SignIn",
-        query: signInMutation,
-        variables: {
-          email: userEmail,
-          password: userPassword,
-          continueFrom: "",
-        },
+          // GraphQL may return 200 with errors in body, or false in data
+          expect(
+            responseData.errors ||
+              (responseData.data && responseData.data.signIn === false) ||
+              response.status() >= 400,
+          ).toBeTruthy();
+        });
       },
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+    );
+
+    test(
+      "should fail login with empty credentials",
+      { tag: Tags.regression },
+      async ({ request }) => {
+        const response =
+          await test.step("Send SignIn with empty credentials", async () => {
+            return request.post(apiUrl, {
+              data: {
+                operationName: "SignIn",
+                query: SIGN_IN_MUTATION,
+                variables: { email: "", password: "", continueFrom: "" },
+              },
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            });
+          });
+
+        await test.step("Verify empty credentials are rejected", async () => {
+          const responseData = await response.json();
+          log.debug("Empty credentials response", responseData);
+
+          expect(
+            responseData.errors ||
+              (responseData.data && responseData.data.signIn === false) ||
+              response.status() >= 400,
+          ).toBeTruthy();
+        });
       },
-    });
-
-    expect(loginResponse.ok()).toBeTruthy();
-    const loginData = await loginResponse.json();
-    expect(loginData.data.signIn).toBe(true);
-
-    // Step 2: Get account information (cookies are automatically saved in request context)
-    const accountQuery = `
-      query {
-        account {
-          uid
-          email
-          login
-          level
-          referrerCode
-          referralStatus
-        }
-      }
-    `;
-
-    const accountResponse = await request.post(apiUrl, {
-      data: {
-        operationName: null,
-        query: accountQuery,
-        variables: {},
-      },
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
-
-    expect(accountResponse.ok()).toBeTruthy();
-    const accountData = await accountResponse.json();
-    console.log("Account Data:", JSON.stringify(accountData, null, 2));
-
-    // Verify account data
-    expect(accountData).toHaveProperty("data");
-    expect(accountData.data).toHaveProperty("account");
-
-    const account = accountData.data.account;
-    expect(account.email).toBe(userEmail);
-    expect(account.login).toBe(userUsername);
-    expect(account).toHaveProperty("uid");
-    expect(account.uid).toBeTruthy();
-    expect(account).toHaveProperty("level");
-
-    console.log("✅ Account info retrieved successfully!");
-    console.log("UID:", account.uid);
-    console.log("Email:", account.email);
-    console.log("Username:", account.login);
-    console.log("Level:", account.level);
-  });
-
-  test("should fail login with incorrect credentials", async ({ request }) => {
-    const signInMutation = `
-      mutation SignIn($email: String!, $password: String!, $continueFrom: String) {
-        signIn(email: $email, password: $password, continueFrom: $continueFrom)
-      }
-    `;
-
-    const response = await request.post(apiUrl, {
-      data: {
-        operationName: "SignIn",
-        query: signInMutation,
-        variables: {
-          email: userEmail,
-          password: "wrong_password_123",
-          continueFrom: "",
-        },
-      },
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
-
-    // Verify that we received an error
-    const responseData = await response.json();
-    console.log("Error Response:", JSON.stringify(responseData, null, 2));
-
-    // GraphQL can return 200 but with errors in body or false in data
-    expect(
-      responseData.errors ||
-        (responseData.data && responseData.data.signIn === false) ||
-        response.status() >= 400,
-    ).toBeTruthy();
-  });
-
-  test("should fail login with empty credentials", async ({ request }) => {
-    const signInMutation = `
-      mutation SignIn($email: String!, $password: String!, $continueFrom: String) {
-        signIn(email: $email, password: $password, continueFrom: $continueFrom)
-      }
-    `;
-
-    const response = await request.post(apiUrl, {
-      data: {
-        operationName: "SignIn",
-        query: signInMutation,
-        variables: {
-          email: "",
-          password: "",
-          continueFrom: "",
-        },
-      },
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
-
-    const responseData = await response.json();
-
-    // Verify presence of errors
-    expect(
-      responseData.errors ||
-        (responseData.data && responseData.data.signIn === false) ||
-        response.status() >= 400,
-    ).toBeTruthy();
-  });
-});
+    );
+  },
+);
