@@ -1,7 +1,14 @@
 import { Page, Locator, expect } from "@playwright/test";
 import config from "../../config/test.config";
+import { createLogger } from "../utils/logger";
+import {
+  ElementNotFoundError,
+  NavigationError,
+  PageLoadError,
+} from "../errors/test-errors";
 
 export class BasePage {
+  protected readonly log = createLogger(this.constructor.name);
   readonly page: Page;
 
   constructor(page: Page) {
@@ -12,26 +19,37 @@ export class BasePage {
    * Navigate to a specific URL
    */
   async goto(url: string): Promise<void> {
-    await this.page.goto(url, {
-      waitUntil: "domcontentloaded",
-      timeout: config.timeouts.navigation,
-    });
+    this.log.step(`Navigating to: ${url}`);
+    try {
+      await this.page.goto(url, {
+        waitUntil: "domcontentloaded",
+        timeout: config.timeouts.navigation,
+      });
+    } catch (err) {
+      throw new PageLoadError(url, config.timeouts.navigation);
+    }
   }
 
   /**
    * Wait for element to be visible
    */
   async waitForElement(locator: Locator, timeout?: number): Promise<void> {
-    await locator.waitFor({
-      state: "visible",
-      timeout: timeout || config.timeouts.default,
-    });
+    const ms = timeout ?? config.timeouts.default;
+    try {
+      await locator.waitFor({ state: "visible", timeout: ms });
+    } catch {
+      const description = await locator
+        .evaluate((el) => el.outerHTML.slice(0, 120))
+        .catch(() => locator.toString());
+      throw new ElementNotFoundError(description, ms);
+    }
   }
 
   /**
    * Click on element with wait
    */
   async click(locator: Locator): Promise<void> {
+    this.log.debug("Clicking element", { locator: locator.toString() });
     await this.waitForElement(locator);
     await locator.click();
   }
@@ -40,6 +58,7 @@ export class BasePage {
    * Fill input field
    */
   async fill(locator: Locator, text: string): Promise<void> {
+    this.log.debug("Filling input", { locator: locator.toString() });
     await this.waitForElement(locator);
     await locator.fill(text);
   }
@@ -86,7 +105,7 @@ export class BasePage {
     await this.page
       .waitForLoadState("networkidle", { timeout: 10000 })
       .catch(() => {
-        console.log("Network idle timeout - continuing anyway");
+        this.log.warn("Network idle timed out — continuing anyway");
       });
   }
 
@@ -123,10 +142,13 @@ export class BasePage {
         'button:has-text("Accept"), button:has-text("Accept All"), button:has-text("I Agree")',
       );
       if (await this.isVisible(acceptButton)) {
+        this.log.info("Accepting cookies dialog");
         await this.click(acceptButton);
+      } else {
+        this.log.debug("No cookies dialog found — skipping");
       }
     } catch (error) {
-      console.log("No cookies dialog found or already accepted");
+      this.log.warn("Could not interact with cookies dialog", error);
     }
   }
 
@@ -152,5 +174,26 @@ export class BasePage {
    */
   async verifyTitle(expectedTitle: string): Promise<void> {
     await expect(this.page).toHaveTitle(expectedTitle);
+  }
+
+  /**
+   * Assert that clicking a locator navigates to a URL matching the expected pattern.
+   * Throws NavigationError for a more descriptive failure message.
+   */
+  async assertNavigatesTo(
+    locator: Locator,
+    expectedPattern: string | RegExp,
+  ): Promise<void> {
+    await this.click(locator);
+    await this.page.waitForLoadState("domcontentloaded");
+    const actual = this.page.url();
+    const matches =
+      typeof expectedPattern === "string"
+        ? actual.includes(expectedPattern)
+        : expectedPattern.test(actual);
+    if (!matches) {
+      throw new NavigationError(actual, expectedPattern);
+    }
+    this.log.info(`Navigation confirmed: ${actual}`);
   }
 }

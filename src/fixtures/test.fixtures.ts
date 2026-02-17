@@ -2,6 +2,10 @@ import { test as base, Page } from "@playwright/test";
 import { HomePage } from "../pages/HomePage";
 import { POE2Page } from "../pages/POE2Page";
 import { loginViaAPI } from "../helpers/auth.helper";
+import { AuthenticationError } from "../errors/test-errors";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("Fixtures");
 
 type MyFixtures = {
   homePage: HomePage;
@@ -29,11 +33,13 @@ export const test = base.extend<MyFixtures>({
     const authResult = await loginViaAPI(apiContext);
 
     if (authResult.success) {
-      console.log("✅ Authenticated via API");
+      log.info("Authenticated via API — proceeding with test");
       // Cookies are already set in the context, page will use them
       await use(page);
     } else {
-      throw new Error("Failed to authenticate via API");
+      throw new AuthenticationError(
+        "loginViaAPI returned success=false. Check USER_EMAIL and USER_PASSWORD env vars.",
+      );
     }
   },
 });
