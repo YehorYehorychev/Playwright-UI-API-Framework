@@ -25,7 +25,7 @@ test.describe(
         });
 
         await test.step("Verify logo is visible", async () => {
-          await expect(homePage.logo).toBeVisible();
+          await expect(homePage.navigation.logo).toBeVisible();
         });
       },
     );
@@ -45,7 +45,7 @@ test.describe(
       {},
       async ({ homePage }) => {
         await test.step(`Verify "${TestData.ui.homepage.gamersCount}" text is visible`, async () => {
-          await homePage.verifyJoinMillionGamersText();
+          await homePage.hero.verifyJoinMillionGamersText();
         });
       },
     );
@@ -55,11 +55,11 @@ test.describe(
       { tag: Tags.critical },
       async ({ homePage }) => {
         await test.step("Verify download button is visible", async () => {
-          await homePage.verifyDownloadButtonVisible();
+          await homePage.hero.verifyDownloadButtonVisible();
         });
 
         await test.step("Verify download button contains correct text", async () => {
-          const buttonText = await homePage.getDownloadButtonText();
+          const buttonText = await homePage.hero.getDownloadButtonText();
           expect(buttonText.toUpperCase()).toContain("DOWNLOAD");
         });
       },
@@ -67,11 +67,11 @@ test.describe(
 
     test("should display game cards", {}, async ({ homePage }) => {
       await test.step("Verify League of Legends card is visible", async () => {
-        await expect(homePage.lolGameCard).toBeVisible();
+        await expect(homePage.gameCards.lolGameCard).toBeVisible();
       });
 
       await test.step("Verify Teamfight Tactics card is visible", async () => {
-        await expect(homePage.tftGameCard).toBeVisible();
+        await expect(homePage.gameCards.tftGameCard).toBeVisible();
       });
     });
 
@@ -80,15 +80,15 @@ test.describe(
       { tag: Tags.navigation },
       async ({ homePage }) => {
         await test.step("Verify LOL navigation item", async () => {
-          await expect(homePage.navLOL).toBeVisible();
+          await expect(homePage.navigation.navLOL).toBeVisible();
         });
 
         await test.step("Verify TFT navigation item", async () => {
-          await expect(homePage.navTFT).toBeVisible();
+          await expect(homePage.navigation.navTFT).toBeVisible();
         });
 
         await test.step("Verify POE2 navigation item", async () => {
-          await expect(homePage.navPOE2).toBeVisible();
+          await expect(homePage.navigation.navPOE2).toBeVisible();
         });
       },
     );
@@ -96,25 +96,26 @@ test.describe(
     test(
       "should have all main elements visible",
       { tag: Tags.critical },
-      async ({ homePage, page }) => {
-        await test.step("Take full page screenshot", async () => {
-          await page.screenshot({
-            path: "test-results/screenshots/home-page-smoke.png",
-            fullPage: true,
+      async ({ homePage }, testInfo) => {
+        await test.step("Capture and attach full page screenshot", async () => {
+          const screenshot = await homePage.takeFullPageScreenshot();
+          await testInfo.attach("home-page-smoke", {
+            body: screenshot,
+            contentType: "image/png",
           });
         });
 
         await test.step("Verify all key elements are present", async () => {
-          await expect(homePage.logo).toBeVisible();
-          await expect(homePage.joinGamersText).toBeVisible();
-          await expect(homePage.downloadButton).toBeVisible();
+          await expect(homePage.navigation.logo).toBeVisible();
+          await expect(homePage.hero.joinGamersText).toBeVisible();
+          await expect(homePage.hero.downloadButton).toBeVisible();
 
           const gameCardsVisible =
-            (await homePage.lolGameCard.isVisible()) ||
-            (await homePage.tftGameCard.isVisible());
+            (await homePage.gameCards.lolGameCard.isVisible()) ||
+            (await homePage.gameCards.tftGameCard.isVisible());
           expect(gameCardsVisible).toBeTruthy();
 
-          await expect(homePage.navLOL).toBeVisible();
+          await expect(homePage.navigation.navLOL).toBeVisible();
         });
       },
     );

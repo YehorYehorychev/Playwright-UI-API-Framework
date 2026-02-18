@@ -1,15 +1,25 @@
 import { Page, Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
+import { NavigationComponent } from "../components/NavigationComponent";
 import config from "../../config/test.config";
 
+/**
+ * POE2 page — composes NavigationComponent so the shared nav bar is never
+ * duplicated between page objects.
+ */
 export class POE2Page extends BasePage {
-  // Locators
+  // ── Shared component ───────────────────────────────────────────────────────
+  readonly navigation: NavigationComponent;
+
+  // ── POE2-specific locators ─────────────────────────────────────────────────
   readonly pageHeading: Locator;
   readonly goToGuidesButton: Locator;
   readonly guidesGrid: Locator;
 
   constructor(page: Page) {
     super(page);
+
+    this.navigation = new NavigationComponent(page);
 
     // Initialize locators
     this.pageHeading = page.getByRole("heading", { level: 1 });
@@ -20,12 +30,11 @@ export class POE2Page extends BasePage {
   }
 
   /**
-   * Navigate to POE2 page from home
+   * Navigate to POE2 page from the home page nav bar.
+   * Uses NavigationComponent.navPOE2 — no duplicated locator.
    */
   async navigateFromHome(): Promise<void> {
-    const poe2Link = this.page.getByRole("link", { name: "PoE2", exact: true });
-    await poe2Link.waitFor({ state: "visible", timeout: 15000 });
-    await this.click(poe2Link);
+    await this.navigation.navigateTo(this.navigation.navPOE2);
     await this.waitForPageLoad();
   }
 
@@ -72,12 +81,10 @@ export class POE2Page extends BasePage {
   }
 
   /**
-   * Take guide page screenshot
+   * Capture a full-page screenshot of the current guide and return the raw buffer.
+   * Attach via testInfo.attach() in the test to make it visible in Allure.
    */
-  async takeGuideScreenshot(guideName: string): Promise<void> {
-    await this.page.screenshot({
-      path: `test-results/poe2-${guideName}.png`,
-      fullPage: true,
-    });
+  async takeGuideScreenshot(): Promise<Buffer> {
+    return await this.page.screenshot({ fullPage: true });
   }
 }

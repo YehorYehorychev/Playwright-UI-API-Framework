@@ -110,13 +110,12 @@ export class BasePage {
   }
 
   /**
-   * Take screenshot
+   * Take a full-page screenshot and return the raw buffer.
+   * Callers are responsible for attaching it to testInfo so it appears in
+   * Allure and other reporters (page objects must not couple to test infra).
    */
-  async takeScreenshot(name: string): Promise<Buffer> {
-    return await this.page.screenshot({
-      path: `./test-results/screenshots/${name}_${Date.now()}.png`,
-      fullPage: true,
-    });
+  async takeScreenshot(): Promise<Buffer> {
+    return await this.page.screenshot({ fullPage: true });
   }
 
   /**
