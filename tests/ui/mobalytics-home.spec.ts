@@ -37,7 +37,7 @@ test.describe(
         "should display all main navigation links",
         { tag: Tags.smoke },
         async ({ homePage }) => {
-          await homePage.verifyAllNavLinksVisible();
+          await homePage.navigation.verifyAllNavLinksVisible();
         },
       );
 
@@ -45,7 +45,7 @@ test.describe(
         "should navigate to LoL page from header",
         { tag: [Tags.smoke, Tags.critical] },
         async ({ homePage, page }) => {
-          await homePage.navigateViaNav(homePage.navLOL);
+          await homePage.navigation.navigateTo(homePage.navigation.navLOL);
           await expect(page).toHaveURL(TestData.urlPatterns.lol);
         },
       );
@@ -54,7 +54,7 @@ test.describe(
         "should navigate to TFT page from header",
         { tag: Tags.regression },
         async ({ homePage, page }) => {
-          await homePage.navigateViaNav(homePage.navTFT);
+          await homePage.navigation.navigateTo(homePage.navigation.navTFT);
           await expect(page).toHaveURL(TestData.urlPatterns.tft);
         },
       );
@@ -63,7 +63,7 @@ test.describe(
         "should display social media links",
         { tag: [Tags.regression, Tags.social] },
         async ({ homePage }) => {
-          await homePage.verifySocialMediaLinksPresent();
+          await homePage.navigation.verifySocialMediaLinksPresent();
         },
       );
     });
@@ -76,7 +76,7 @@ test.describe(
         "should display main heading",
         { tag: Tags.smoke },
         async ({ homePage }) => {
-          await homePage.verifyElementVisible(homePage.mainHeading);
+          await homePage.verifyElementVisible(homePage.hero.mainHeading);
         },
       );
 
@@ -84,7 +84,7 @@ test.describe(
         "should display description text",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyJoinMillionGamersText();
+          await homePage.hero.verifyJoinMillionGamersText();
         },
       );
 
@@ -92,7 +92,7 @@ test.describe(
         "should display download button",
         { tag: [Tags.smoke, Tags.critical] },
         async ({ homePage }) => {
-          await homePage.verifyDownloadButtonVisible();
+          await homePage.hero.verifyDownloadButtonVisible();
         },
       );
 
@@ -100,7 +100,7 @@ test.describe(
         "should verify download button has correct URL",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await expect(homePage.downloadButton).toHaveAttribute(
+          await expect(homePage.hero.downloadButton).toHaveAttribute(
             "href",
             TestData.urlPatterns.downloadOverwolf,
           );
@@ -116,7 +116,9 @@ test.describe(
         "should display LoL game logo",
         { tag: Tags.smoke },
         async ({ homePage }) => {
-          await homePage.verifyGameLogoVisible(homePage.lolGameCard);
+          await homePage.gameCards.verifyLogoVisible(
+            homePage.gameCards.lolGameCard,
+          );
         },
       );
 
@@ -124,7 +126,9 @@ test.describe(
         "should display TFT game logo",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyGameLogoVisible(homePage.tftGameCard);
+          await homePage.gameCards.verifyLogoVisible(
+            homePage.gameCards.tftGameCard,
+          );
         },
       );
 
@@ -132,7 +136,9 @@ test.describe(
         "should display PoE2 game logo",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyGameLogoVisible(homePage.poe2GameCard);
+          await homePage.gameCards.verifyLogoVisible(
+            homePage.gameCards.poe2GameCard,
+          );
         },
       );
 
@@ -140,7 +146,9 @@ test.describe(
         "should display Diablo 4 game logo",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyGameLogoVisible(homePage.diablo4GameCard);
+          await homePage.gameCards.verifyLogoVisible(
+            homePage.gameCards.diablo4GameCard,
+          );
         },
       );
 
@@ -148,7 +156,9 @@ test.describe(
         "should navigate to Valorant page via logo",
         { tag: Tags.regression },
         async ({ homePage, page }) => {
-          await homePage.navigateViaGameLogo(homePage.valorantGameCard);
+          await homePage.gameCards.navigateViaLogo(
+            homePage.gameCards.valorantGameCard,
+          );
           await expect(page).toHaveURL(TestData.urlPatterns.valorant);
         },
       );
@@ -162,7 +172,7 @@ test.describe(
         "should display features section heading",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyFeaturesSectionVisible();
+          await homePage.features.verifySectionVisible();
         },
       );
 
@@ -170,7 +180,9 @@ test.describe(
         "should display 'Master the meta' feature",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyFeatureVisible(homePage.masterMetaFeature);
+          await homePage.features.verifyFeatureVisible(
+            homePage.features.masterMeta,
+          );
         },
       );
 
@@ -178,8 +190,8 @@ test.describe(
         "should display 'Identify weaknesses' feature",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyFeatureVisible(
-            homePage.identifyWeaknessesFeature,
+          await homePage.features.verifyFeatureVisible(
+            homePage.features.identifyWeaknesses,
           );
         },
       );
@@ -188,7 +200,9 @@ test.describe(
         "should display 'Get victories' feature",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyFeatureVisible(homePage.getVictoriesFeature);
+          await homePage.features.verifyFeatureVisible(
+            homePage.features.getVictories,
+          );
         },
       );
     });
@@ -204,7 +218,7 @@ test.describe(
           "should display Improvement Loop heading",
           { tag: Tags.regression },
           async ({ homePage }) => {
-            await homePage.verifyImprovementLoopHeadingVisible();
+            await homePage.improvementLoop.verifyHeadingVisible();
           },
         );
 
@@ -212,7 +226,7 @@ test.describe(
           "should display all improvement stages",
           { tag: Tags.regression },
           async ({ homePage }) => {
-            await homePage.verifyAllImprovementStagesVisible();
+            await homePage.improvementLoop.verifyAllStagesVisible();
           },
         );
       },
@@ -226,7 +240,7 @@ test.describe(
         "should display 27% statistic",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyStatisticsVisible();
+          await homePage.statistics.verifyStatisticsVisible();
         },
       );
 
@@ -234,7 +248,7 @@ test.describe(
         "should display research link",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyResearchLinkVisible();
+          await homePage.statistics.verifyResearchLinkVisible();
         },
       );
 
@@ -242,7 +256,7 @@ test.describe(
         "should display LCS partnership message",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyLCSPartnershipVisible();
+          await homePage.statistics.verifyLCSPartnershipVisible();
         },
       );
     });
@@ -255,7 +269,7 @@ test.describe(
         "should display community information",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyCommunityInfoVisible();
+          await homePage.community.verifyCommunityInfoVisible();
         },
       );
     });
@@ -268,7 +282,7 @@ test.describe(
         "should display League of Legends footer section",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyFooterSectionVisible(homePage.footerLOL);
+          await homePage.footer.verifySectionVisible(homePage.footer.lol);
         },
       );
 
@@ -276,7 +290,7 @@ test.describe(
         "should display TFT footer section",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyFooterSectionVisible(homePage.footerTFT);
+          await homePage.footer.verifySectionVisible(homePage.footer.tft);
         },
       );
 
@@ -284,7 +298,7 @@ test.describe(
         "should display Valorant footer section",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyFooterSectionVisible(homePage.footerValorant);
+          await homePage.footer.verifySectionVisible(homePage.footer.valorant);
         },
       );
 
@@ -292,7 +306,7 @@ test.describe(
         "should display Resources footer section",
         { tag: Tags.regression },
         async ({ homePage }) => {
-          await homePage.verifyFooterSectionVisible(homePage.footerResources);
+          await homePage.footer.verifySectionVisible(homePage.footer.resources);
         },
       );
 
@@ -300,7 +314,7 @@ test.describe(
         "should navigate to Blog from footer",
         { tag: [Tags.regression, Tags.navigation] },
         async ({ homePage, page }) => {
-          await homePage.navigateViaFooterLink(homePage.footerBlogLink);
+          await homePage.footer.navigateViaLink(homePage.footer.blogLink);
           await expect(page).toHaveURL(TestData.urlPatterns.blog);
         },
       );
@@ -330,7 +344,7 @@ test.describe(
         async ({ homePage }, testInfo) => {
           await test.step("Capture and attach hero section screenshot", async () => {
             const screenshot = await homePage.takeElementScreenshot(
-              homePage.mainHeading,
+              homePage.hero.mainHeading,
             );
             await testInfo.attach("home-page-hero", {
               body: screenshot,

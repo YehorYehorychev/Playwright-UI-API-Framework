@@ -61,7 +61,7 @@ test.describe(
       async ({ authenticatedPoe2Page: poe2Page }) => {
         const guideTitle = "The Last of the Druids";
         const guideUrlPattern =
-          /.*0-4-the-last-of-the-druids-content-livestream-summary111чч$/;
+          /.*0-4-the-last-of-the-druids-content-livestream-summary$/;
 
         await test.step("Navigate directly to guides page", async () => {
           await poe2Page.goto(`${config.baseURL}${TestData.urls.poe2Guides}`);

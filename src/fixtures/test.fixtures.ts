@@ -1,6 +1,10 @@
 import { test as base, Page } from "@playwright/test";
 import { HomePage } from "../pages/HomePage";
 import { POE2Page } from "../pages/POE2Page";
+import { NavigationComponent } from "../components/NavigationComponent";
+import { FooterComponent } from "../components/FooterComponent";
+import { HeroComponent } from "../components/HeroComponent";
+import { GameCardsComponent } from "../components/GameCardsComponent";
 import { loginViaAPI } from "../helpers/auth.helper";
 import { AuthenticationError } from "../errors/test-errors";
 import { createLogger } from "../utils/logger";
@@ -8,11 +12,19 @@ import { createLogger } from "../utils/logger";
 const log = createLogger("Fixtures");
 
 type MyFixtures = {
+  // ── Page Object fixtures ──────────────────────────────────────────────────
   homePage: HomePage;
   poe2Page: POE2Page;
-  authenticatedPage: Page; // Page with authenticated session
-  authenticatedPoe2Page: POE2Page; // POE2Page with authenticated session
-  // auto fixture — not used directly in tests
+  authenticatedPage: Page;
+  authenticatedPoe2Page: POE2Page;
+
+  // ── Component fixtures (inject a single component for focused tests) ───────
+  navigation: NavigationComponent;
+  hero: HeroComponent;
+  gameCards: GameCardsComponent;
+  footer: FooterComponent;
+
+  // ── Auto fixture — not used directly in tests ─────────────────────────────
   screenshotOnFailure: void;
 };
 
@@ -50,6 +62,26 @@ export const test = base.extend<MyFixtures>({
   poe2Page: async ({ page }, use) => {
     const poe2Page = new POE2Page(page);
     await use(poe2Page);
+  },
+
+  // ── Component fixtures ────────────────────────────────────────────────────
+  // Use these in tests that only need to interact with one section of the page,
+  // avoiding the overhead of constructing the full page object.
+
+  navigation: async ({ page }, use) => {
+    await use(new NavigationComponent(page));
+  },
+
+  hero: async ({ page }, use) => {
+    await use(new HeroComponent(page));
+  },
+
+  gameCards: async ({ page }, use) => {
+    await use(new GameCardsComponent(page));
+  },
+
+  footer: async ({ page }, use) => {
+    await use(new FooterComponent(page));
   },
 
   // Fixture that provides an authenticated page

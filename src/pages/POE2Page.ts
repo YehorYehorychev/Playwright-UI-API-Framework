@@ -1,15 +1,25 @@
 import { Page, Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
+import { NavigationComponent } from "../components/NavigationComponent";
 import config from "../../config/test.config";
 
+/**
+ * POE2 page — composes NavigationComponent so the shared nav bar is never
+ * duplicated between page objects.
+ */
 export class POE2Page extends BasePage {
-  // Locators
+  // ── Shared component ───────────────────────────────────────────────────────
+  readonly navigation: NavigationComponent;
+
+  // ── POE2-specific locators ─────────────────────────────────────────────────
   readonly pageHeading: Locator;
   readonly goToGuidesButton: Locator;
   readonly guidesGrid: Locator;
 
   constructor(page: Page) {
     super(page);
+
+    this.navigation = new NavigationComponent(page);
 
     // Initialize locators
     this.pageHeading = page.getByRole("heading", { level: 1 });
