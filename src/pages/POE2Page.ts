@@ -30,12 +30,11 @@ export class POE2Page extends BasePage {
   }
 
   /**
-   * Navigate to POE2 page from home
+   * Navigate to POE2 page from the home page nav bar.
+   * Uses NavigationComponent.navPOE2 — no duplicated locator.
    */
   async navigateFromHome(): Promise<void> {
-    const poe2Link = this.page.getByRole("link", { name: "PoE2", exact: true });
-    await poe2Link.waitFor({ state: "visible", timeout: 15000 });
-    await this.click(poe2Link);
+    await this.navigation.navigateTo(this.navigation.navPOE2);
     await this.waitForPageLoad();
   }
 
