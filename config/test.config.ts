@@ -57,7 +57,9 @@ export const config: TestConfig = {
     reportDir: process.env.ALLURE_REPORT_DIR || "allure-report",
   },
   screenshots: {
-    onFailure: process.env.SCREENSHOT_ON_FAILURE === "true",
+    // Default true so Playwright saves screenshots; explicit attachment is handled
+    // by the screenshotOnFailure auto-fixture which forwards them to Allure.
+    onFailure: process.env.SCREENSHOT_ON_FAILURE !== "false",
   },
   video: {
     onFailure: process.env.VIDEO_ON_FAILURE === "true",

@@ -12,9 +12,36 @@ type MyFixtures = {
   poe2Page: POE2Page;
   authenticatedPage: Page; // Page with authenticated session
   authenticatedPoe2Page: POE2Page; // POE2Page with authenticated session
+  // auto fixture — not used directly in tests
+  screenshotOnFailure: void;
 };
 
 export const test = base.extend<MyFixtures>({
+  /**
+   * Auto-fixture: captures a full-page screenshot after every FAILED test and
+   * attaches it via testInfo.attach() so that allure-playwright always includes
+   * it in the Allure report (Playwright's built-in screenshot mechanism writes
+   * the file too late for allure-playwright to pick up automatically).
+   */
+  screenshotOnFailure: [
+    async ({ page }, use, testInfo) => {
+      await use();
+      if (testInfo.status !== testInfo.expectedStatus) {
+        const screenshot = await page
+          .screenshot({ fullPage: true })
+          .catch(() => null);
+        if (screenshot) {
+          await testInfo.attach("screenshot on failure", {
+            body: screenshot,
+            contentType: "image/png",
+          });
+          log.info(`Screenshot attached for failed test: ${testInfo.title}`);
+        }
+      }
+    },
+    { auto: true },
+  ],
+
   homePage: async ({ page }, use) => {
     const homePage = new HomePage(page);
     await use(homePage);
