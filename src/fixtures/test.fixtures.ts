@@ -71,8 +71,11 @@ export const test = base.extend<MyFixtures>({
     }
   },
 
-  // Fixture that provides a POE2Page with an authenticated session
-  authenticatedPoe2Page: async ({ context }, use) => {
+  // Fixture that provides a POE2Page with an authenticated session.
+  // Reuses the standard `page` fixture (best practice) so that the
+  // screenshotOnFailure auto-fixture, video recording, and trace all operate
+  // on the same page that the test actually uses — no blank screenshots.
+  authenticatedPoe2Page: async ({ page, context }, use) => {
     const apiContext = context.request;
     const authResult = await loginViaAPI(apiContext);
 
@@ -83,10 +86,8 @@ export const test = base.extend<MyFixtures>({
     }
 
     log.info("Authenticated via API — providing POE2Page");
-    const page = await context.newPage();
     const poe2Page = new POE2Page(page);
     await use(poe2Page);
-    await page.close();
   },
 });
 

@@ -435,24 +435,18 @@ export class HomePage extends BasePage {
   // ===== Screenshot Methods =====
 
   /**
-   * Take full page screenshot
+   * Capture a full-page screenshot and return the raw buffer.
+   * Attach via testInfo.attach() in the test to make it visible in Allure.
    */
-  async takeFullPageScreenshot(filename: string): Promise<void> {
-    await this.page.screenshot({
-      path: `test-results/${filename}`,
-      fullPage: true,
-    });
+  async takeFullPageScreenshot(): Promise<Buffer> {
+    return await this.page.screenshot({ fullPage: true });
   }
 
   /**
-   * Take element screenshot
+   * Capture a screenshot of a specific element and return the raw buffer.
+   * Attach via testInfo.attach() in the test to make it visible in Allure.
    */
-  async takeElementScreenshot(
-    locator: Locator,
-    filename: string,
-  ): Promise<void> {
-    await locator.screenshot({
-      path: `test-results/${filename}`,
-    });
+  async takeElementScreenshot(locator: Locator): Promise<Buffer> {
+    return await locator.screenshot();
   }
 }

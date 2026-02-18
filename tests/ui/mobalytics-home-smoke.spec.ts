@@ -96,11 +96,12 @@ test.describe(
     test(
       "should have all main elements visible",
       { tag: Tags.critical },
-      async ({ homePage, page }) => {
-        await test.step("Take full page screenshot", async () => {
-          await page.screenshot({
-            path: "test-results/screenshots/home-page-smoke.png",
-            fullPage: true,
+      async ({ homePage }, testInfo) => {
+        await test.step("Capture and attach full page screenshot", async () => {
+          const screenshot = await homePage.takeFullPageScreenshot();
+          await testInfo.attach("home-page-smoke", {
+            body: screenshot,
+            contentType: "image/png",
           });
         });
 

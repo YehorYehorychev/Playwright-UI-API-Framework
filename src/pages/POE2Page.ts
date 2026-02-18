@@ -72,12 +72,10 @@ export class POE2Page extends BasePage {
   }
 
   /**
-   * Take guide page screenshot
+   * Capture a full-page screenshot of the current guide and return the raw buffer.
+   * Attach via testInfo.attach() in the test to make it visible in Allure.
    */
-  async takeGuideScreenshot(guideName: string): Promise<void> {
-    await this.page.screenshot({
-      path: `test-results/poe2-${guideName}.png`,
-      fullPage: true,
-    });
+  async takeGuideScreenshot(): Promise<Buffer> {
+    return await this.page.screenshot({ fullPage: true });
   }
 }

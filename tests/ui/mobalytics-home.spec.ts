@@ -313,19 +313,30 @@ test.describe(
       test(
         "should take full page screenshot",
         { tag: Tags.visual },
-        async ({ homePage }) => {
-          await homePage.takeFullPageScreenshot("home-page-full.png");
+        async ({ homePage }, testInfo) => {
+          await test.step("Capture and attach full page screenshot", async () => {
+            const screenshot = await homePage.takeFullPageScreenshot();
+            await testInfo.attach("home-page-full", {
+              body: screenshot,
+              contentType: "image/png",
+            });
+          });
         },
       );
 
       test(
         "should take hero section screenshot",
         { tag: Tags.visual },
-        async ({ homePage }) => {
-          await homePage.takeElementScreenshot(
-            homePage.mainHeading,
-            "home-page-hero.png",
-          );
+        async ({ homePage }, testInfo) => {
+          await test.step("Capture and attach hero section screenshot", async () => {
+            const screenshot = await homePage.takeElementScreenshot(
+              homePage.mainHeading,
+            );
+            await testInfo.attach("home-page-hero", {
+              body: screenshot,
+              contentType: "image/png",
+            });
+          });
         },
       );
     });
