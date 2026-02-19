@@ -1,98 +1,132 @@
 # 🎭 Playwright Test Automation Framework
 
-Professional test automation framework for **Mobalytics.gg** using **Playwright**, **TypeScript**, **Page Object Model**, and **Allure Reports**.
+Professional test automation framework for **[Mobalytics.gg](https://mobalytics.gg)** — a gaming analytics platform. Built with **Playwright**, **TypeScript**, **Page Object Model**, **Component Objects**, and **Allure Reports**.
+
+---
 
 ## 🚀 Features
 
-- ✅ **Playwright** - Modern, reliable end-to-end testing
-- ✅ **TypeScript** - Type-safe test code with strict typing
-- ✅ **Page Object Model (POM)** - Clean and maintainable architecture
-- ✅ **Custom Fixtures** - Pre-configured page objects for each test (including authenticated sessions)
-- ✅ **Allure Reports** - Beautiful, detailed test reports
-- ✅ **Multi-browser Support** - Chromium, Firefox, WebKit
-- ✅ **Parallel Execution** - Fast test runs with 4 workers
-- ✅ **API Testing** - GraphQL authentication tests
-- ✅ **Environment Configuration** - Flexible config management
-- ✅ **Structured Logger** - Levelled, colour-coded console output per test context
-- ✅ **Typed Error Classes** - Descriptive, catchable error hierarchy
-- ✅ **Centralised Test Data** - Single source of truth for URLs, credentials and UI strings
-- ✅ **Tag System** - Type-safe tag constants with regex-based CLI filtering
+- ✅ **Playwright** — Modern, reliable end-to-end and API testing
+- ✅ **TypeScript** — Strictly typed test code throughout
+- ✅ **Page Object Model (POM)** — Clean, reusable page abstractions
+- ✅ **Component Object Model** — Isolated components (`NavigationComponent`, `HeroComponent`, `FooterComponent`, etc.)
+- ✅ **Custom Fixtures** — Pre-configured page/component objects per test including authenticated sessions
+- ✅ **Allure Reports** — Detailed, interactive HTML test reports
+- ✅ **Multi-browser** — Chromium by default; Firefox + WebKit on demand via `CROSS_BROWSER=true`
+- ✅ **Parallel Execution** — Auto-scales workers to CPU count (50% of logical cores)
+- ✅ **API Testing** — GraphQL endpoint, auth, and account tests via Playwright's request API
+- ✅ **Headless by default** — Browsers run headless unless `HEADLESS=false`
+- ✅ **Environment Config** — All settings driven by `.env` with documented defaults
+- ✅ **Structured Logger** — Levelled, colour-coded console output per test context
+- ✅ **Typed Error Classes** — Descriptive, catchable error hierarchy
+- ✅ **Centralised Test Data** — Single source of truth for URLs, patterns and UI strings
+- ✅ **Tag System** — Type-safe tag constants with regex-based CLI filtering
+- ✅ **CI/CD Pipeline** — GitHub Actions with fast smoke gate + sharded full regression
+
+---
 
 ## 📁 Project Structure
 
 ```
 playwright-mcp-tests/
-├── src/
-│   ├── pages/                    # Page Object Models
-│   │   ├── BasePage.ts          # Base page with common methods + logger + typed errors
-│   │   ├── HomePage.ts          # Home page with 60+ locators
-│   │   └── POE2Page.ts          # POE2 specific page
-│   ├── fixtures/
-│   │   └── test.fixtures.ts     # Custom Playwright fixtures (incl. authenticated sessions)
-│   ├── helpers/
-│   │   └── auth.helper.ts       # API authentication helper (loginViaAPI)
-│   ├── utils/
-│   │   └── logger.ts            # Structured, levelled test logger
-│   ├── errors/
-│   │   └── test-errors.ts       # Typed error class hierarchy
-│   └── data/
-│       ├── test-data.ts         # Centralised test data (URLs, credentials, UI strings)
-│       └── tags.ts              # Type-safe tag constants
-├── tests/
-│   ├── ui/                      # UI tests using POM
-│   │   ├── mobalytics-home-smoke.spec.ts      # 7 smoke tests
-│   │   ├── mobalytics-home.spec.ts            # 36 comprehensive tests
-│   │   └── mobalytics-poe2-guides.spec.ts     # 3 POE2 navigation tests
-│   └── api/                     # API tests
-│       └── mobalytics-graphql-auth.spec.ts    # 12 GraphQL tests
+├── .github/
+│   └── workflows/
+│       └── playwright.yml          # CI: smoke → regression shards → cross-browser
 ├── config/
-│   └── test.config.ts           # Environment configuration
-├── playwright.config.ts         # Playwright configuration
-└── .env                         # Environment variables (not committed)
+│   └── test.config.ts              # Typed config object, reads from .env
+├── scripts/
+│   └── test-and-report.sh          # Run tests + optional Allure report prompt
+├── src/
+│   ├── components/                 # Component Object Models
+│   │   ├── BaseComponent.ts
+│   │   ├── CommunityComponent.ts
+│   │   ├── CookieBannerComponent.ts
+│   │   ├── FeaturesComponent.ts
+│   │   ├── FooterComponent.ts
+│   │   ├── GameCardsComponent.ts
+│   │   ├── HeroComponent.ts
+│   │   ├── ImprovementLoopComponent.ts
+│   │   ├── NavigationComponent.ts
+│   │   └── StatisticsComponent.ts
+│   ├── data/
+│   │   ├── tags.ts                 # Type-safe tag constants (@smoke, @critical, …)
+│   │   └── test-data.ts            # Centralised URLs, URL patterns, UI strings
+│   ├── errors/
+│   │   └── test-errors.ts          # Typed error hierarchy
+│   ├── fixtures/
+│   │   └── test.fixtures.ts        # Custom Playwright fixtures + auto screenshot
+│   ├── helpers/
+│   │   └── auth.helper.ts          # loginViaAPI helper
+│   ├── pages/
+│   │   ├── BasePage.ts             # Shared navigation, wait, assertion helpers
+│   │   ├── HomePage.ts             # Home page (composes all components)
+│   │   ├── LolPage.ts              # League of Legends hub page
+│   │   └── POE2Page.ts             # Path of Exile 2 page
+│   └── utils/
+│       ├── helpers.ts              # General utilities
+│       └── logger.ts               # Structured, levelled console logger
+├── tests/
+│   ├── api/                        # API / GraphQL tests (27 tests)
+│   │   ├── mobalytics-graphql-account.spec.ts        # 8 tests  @api @account
+│   │   ├── mobalytics-graphql-auth.spec.ts           # 4 tests  @api @auth
+│   │   ├── mobalytics-graphql-endpoint.spec.ts       # 9 tests  @api
+│   │   └── mobalytics-graphql-signin-extended.spec.ts # 6 tests @api @auth
+│   └── ui/                         # Browser tests (75 tests)
+│       ├── mobalytics-cookie.spec.ts                 # 3 tests  @cookie
+│       ├── mobalytics-home-extended.spec.ts          # 13 tests @regression
+│       ├── mobalytics-home-navigation.spec.ts        # 8 tests  @navigation
+│       ├── mobalytics-home-smoke.spec.ts             # 7 tests  @smoke @critical
+│       ├── mobalytics-home.spec.ts                   # 28 tests @regression
+│       ├── mobalytics-lol.spec.ts                    # 5 tests  @lol
+│       ├── mobalytics-poe2-guides.spec.ts             # 6 tests  @poe2
+│       └── mobalytics-responsive.spec.ts             # 5 tests  @responsive
+├── .env                            # Local env vars (not committed)
+├── .env.example                    # Template — copy to .env to get started
+├── playwright.config.ts            # Playwright configuration
+├── tsconfig.json
+└── package.json
 ```
-
-## 🏗️ Architecture
-
-### BasePage
-
-Base class for all page objects with common functionality:
-
-- `goto(path)` - Navigate to a path (waits for `domcontentloaded`)
-- `waitForPageLoad()` - Wait for networkidle after navigation
-- `click(locator)` - Click with automatic waiting
-- `fill(locator, value)` - Fill an input field
-- `waitForElement(locator)` - Wait for element visibility
-- `verifyElementVisible(locator)` - Assert element is visible
-- `assertNavigatesTo(pattern)` - Assert current URL matches a regex pattern
-- `takeScreenshot(name)` - Capture screenshots
-- `acceptCookiesIfPresent()` - Handle cookie banners
-
-All methods log at `debug` level via the built-in `Logger` and throw typed errors on failure.
-
-### HomePage
-
-Main home page with 60+ locators and 30+ methods:
-
-- Navigation links (LoL, TFT, POE2, etc.)
-- Game cards and features section
-- Footer links and social media
-- Community statistics
-- Hero section elements
-
-### POE2Page
-
-POE2-specific page with navigation methods:
-
-- `navigateFromHome()` - Navigate from home to POE2 via nav link
-- `navigateToGuides()` - Navigate to the guides listing page
-- `openGuideByTitle(title)` - Open a specific guide card
-- `verifyGuideOpened(title)` - Verify a guide page has loaded
 
 ---
 
-### Logger (`src/utils/logger.ts`)
+## 🏗️ Architecture
 
-Structured, levelled console logger with ANSI colours and per-context prefixes.
+### Page Object Model
+
+Each page composes multiple **Component Objects** instead of owning all locators directly. This keeps pages thin and components reusable across pages.
+
+```
+HomePage
+ ├── NavigationComponent   (nav bar, game links, social links)
+ ├── HeroComponent         (hero banner, CTA buttons, heading)
+ ├── GameCardsComponent    (game card grid)
+ ├── FeaturesComponent     (feature highlights)
+ ├── ImprovementLoopComponent
+ ├── StatisticsComponent
+ ├── CommunityComponent
+ └── FooterComponent
+```
+
+### BasePage
+
+Base class extended by all page objects:
+
+| Method                          | Description                                                  |
+| ------------------------------- | ------------------------------------------------------------ |
+| `navigate()`                    | Go to the page's URL, wait for load, accept cookies          |
+| `goto(path)`                    | Navigate to an arbitrary path (waits for `domcontentloaded`) |
+| `waitForPageLoad()`             | Wait for `networkidle`                                       |
+| `click(locator)`                | Click with automatic waiting                                 |
+| `fill(locator, value)`          | Fill an input field                                          |
+| `waitForElement(locator)`       | Wait for element visibility                                  |
+| `verifyElementVisible(locator)` | Assert element is visible                                    |
+| `assertNavigatesTo(pattern)`    | Assert current URL matches a regex                           |
+| `takeScreenshot(name)`          | Capture a screenshot                                         |
+| `acceptCookiesIfPresent()`      | Dismiss cookie banner if present                             |
+
+All methods log at `debug` via the built-in `Logger` and throw typed errors on failure.
+
+### Logger (`src/utils/logger.ts`)
 
 ```typescript
 import { createLogger } from "../utils/logger";
@@ -104,33 +138,20 @@ log.warn("element took longer than expected");
 log.error("navigation failed", error);
 ```
 
-Log level is controlled by the `LOG_LEVEL` environment variable (`debug` | `info` | `warn` | `error`). Defaults to `info`.
+Controlled by `LOG_LEVEL` env var: `debug` | `info` | `warn` | `error`. Defaults to `info`.
 
----
-
-### Typed Error Classes (`src/errors/test-errors.ts`)
-
-Six purpose-built error classes that replace generic `Error` throws:
+### Typed Errors (`src/errors/test-errors.ts`)
 
 | Class                  | When to use                                       |
 | ---------------------- | ------------------------------------------------- |
 | `PageLoadError`        | Page failed to reach expected URL or state        |
-| `ElementNotFoundError` | Locator timed out or element was not visible      |
+| `ElementNotFoundError` | Locator timed out or element not visible          |
 | `NavigationError`      | URL assertion / redirect failed                   |
 | `AuthenticationError`  | Login via API or UI failed                        |
 | `ApiError`             | HTTP / GraphQL request returned unexpected status |
-| `TestDataError`        | A required env var or test data value is missing  |
-
-```typescript
-import { NavigationError } from "../errors/test-errors";
-throw new NavigationError(`Expected URL ${pattern}, got ${current}`);
-```
-
----
+| `TestDataError`        | Required env var or test data value is missing    |
 
 ### Centralised Test Data (`src/data/test-data.ts`)
-
-Single source of truth for all values used across tests:
 
 ```typescript
 import { TestData } from "../data/test-data";
@@ -139,220 +160,329 @@ TestData.urls.home; // "/"
 TestData.urls.poe2; // "/poe-2"
 TestData.urls.poe2Guides; // "/poe-2/guides"
 TestData.urlPatterns.poe2; // /.*\/poe-2.*/
-TestData.credentials.validUser.email;
+TestData.urlPatterns.lol; // /.*\/lol.*/
 TestData.ui.homepage.gamersCount;
 TestData.api.graphqlEndpoint;
 ```
 
----
-
 ### Tag System (`src/data/tags.ts`)
-
-Type-safe tag constants used in `test.describe` / `test` options:
 
 ```typescript
 import { Tags } from '../data/tags';
 
-test.describe('POE2 Guides', { tag: [Tags.ui, Tags.poe2] }, () => {
-  test('should load guides page', { tag: [Tags.smoke, Tags.navigation] }, async () => { ... });
+test.describe('LoL Page', { tag: [Tags.ui, Tags.lol] }, () => {
+  test('should load page', { tag: Tags.smoke }, async () => { ... });
 });
 ```
 
-**Available tags:**
-
-| Tag constant         | Value            | Purpose                      |
-| -------------------- | ---------------- | ---------------------------- |
-| `Tags.smoke`         | `@smoke`         | Run on every build           |
-| `Tags.regression`    | `@regression`    | Nightly / pre-release        |
-| `Tags.ui`            | `@ui`            | Browser-driven tests         |
-| `Tags.api`           | `@api`           | API / GraphQL tests          |
-| `Tags.navigation`    | `@navigation`    | Navigation flows             |
-| `Tags.critical`      | `@critical`      | Must-pass; blocks pipeline   |
-| `Tags.visual`        | `@visual`        | Screenshot / pixel-diff      |
-| `Tags.authenticated` | `@authenticated` | Requires a logged-in session |
-| `Tags.poe2`          | `@poe2`          | POE2 section                 |
-| `Tags.auth`          | `@auth`          | Login / logout / session     |
-| `Tags.hero`          | `@hero`          | Hero section                 |
-| `Tags.gameLogos`     | `@game-logos`    | Game logo carousel           |
-| `Tags.features`      | `@features`      | Features section             |
-| `Tags.footer`        | `@footer`        | Footer area                  |
-
----
+| Tag                  | Value            | Purpose                               |
+| -------------------- | ---------------- | ------------------------------------- |
+| `Tags.smoke`         | `@smoke`         | Fast gate — runs on every push        |
+| `Tags.critical`      | `@critical`      | Must-pass; blocks pipeline            |
+| `Tags.regression`    | `@regression`    | Full coverage — nightly / pre-release |
+| `Tags.ui`            | `@ui`            | All browser-driven tests              |
+| `Tags.api`           | `@api`           | API / GraphQL tests                   |
+| `Tags.navigation`    | `@navigation`    | Navigation flow tests                 |
+| `Tags.visual`        | `@visual`        | Screenshot / visual diff              |
+| `Tags.authenticated` | `@authenticated` | Requires logged-in session            |
+| `Tags.poe2`          | `@poe2`          | Path of Exile 2 section               |
+| `Tags.lol`           | `@lol`           | League of Legends section             |
+| `Tags.responsive`    | `@responsive`    | Mobile viewport tests                 |
+| `Tags.cookie`        | `@cookie`        | Cookie consent banner                 |
+| `Tags.auth`          | `@auth`          | Login / logout / session              |
+| `Tags.hero`          | `@hero`          | Hero section                          |
+| `Tags.footer`        | `@footer`        | Footer area                           |
+| `Tags.statistics`    | `@statistics`    | Statistics section                    |
 
 ### Custom Fixtures (`src/fixtures/test.fixtures.ts`)
 
-| Fixture                 | Description                                                    |
-| ----------------------- | -------------------------------------------------------------- |
-| `homePage`              | Unauthenticated `HomePage` instance                            |
-| `poe2Page`              | Unauthenticated `POE2Page` instance                            |
-| `authenticatedPage`     | `HomePage` with a valid authenticated session injected via API |
-| `authenticatedPoe2Page` | `POE2Page` with a valid authenticated session injected via API |
+| Fixture                 | Description                                                              |
+| ----------------------- | ------------------------------------------------------------------------ |
+| `homePage`              | `HomePage` instance (unauthenticated)                                    |
+| `poe2Page`              | `POE2Page` instance (unauthenticated)                                    |
+| `lolPage`               | `LolPage` instance (unauthenticated)                                     |
+| `navigation`            | Standalone `NavigationComponent`                                         |
+| `hero`                  | Standalone `HeroComponent`                                               |
+| `gameCards`             | Standalone `GameCardsComponent`                                          |
+| `footer`                | Standalone `FooterComponent`                                             |
+| `authenticatedPage`     | `Page` with valid session injected via API login                         |
+| `authenticatedPoe2Page` | `POE2Page` with valid session injected via API login                     |
+| `screenshotOnFailure`   | _(auto)_ Captures full-page screenshot on failure and attaches to Allure |
+
+---
 
 ## 🧪 Test Coverage
 
-### UI Tests — 46 tests
+**Total: 102 tests** across 12 spec files.
 
-**`mobalytics-home-smoke.spec.ts`** — 7 tests `@smoke @ui`
+### UI Tests — 75 tests
 
-- Page load, title, logo visibility, gamers count, navigation links
+| Spec file                            | Tests | Tags                                                     |
+| ------------------------------------ | ----- | -------------------------------------------------------- |
+| `mobalytics-home-smoke.spec.ts`      | 7     | `@smoke` `@critical` `@ui`                               |
+| `mobalytics-home.spec.ts`            | 28    | `@regression` `@ui` `@navigation` `@hero` `@visual` …    |
+| `mobalytics-home-navigation.spec.ts` | 8     | `@navigation` `@regression` `@ui`                        |
+| `mobalytics-home-extended.spec.ts`   | 13    | `@regression` `@ui` `@footer` `@statistics` `@community` |
+| `mobalytics-lol.spec.ts`             | 5     | `@lol` `@regression` `@ui`                               |
+| `mobalytics-poe2-guides.spec.ts`     | 6     | `@poe2` `@ui` `@navigation` `@authenticated`             |
+| `mobalytics-responsive.spec.ts`      | 5     | `@responsive` `@regression` `@ui`                        |
+| `mobalytics-cookie.spec.ts`          | 3     | `@cookie` `@regression` `@ui`                            |
 
-**`mobalytics-home.spec.ts`** — 36 tests `@regression @ui`
+### API Tests — 27 tests
 
-- Header Navigation (5 tests) `@navigation`
-- Hero Section (4 tests) `@hero`
-- Game Logos (5 tests) `@game-logos`
-- Features Section (4 tests) `@features`
-- Improvement Loop (2 tests) `@improvement-loop`
-- Statistics (3 tests) `@statistics`
-- Community (1 test) `@community`
-- Footer Links (5 tests) `@footer`
-- Visual Elements (7 tests) `@visual`
+| Spec file                                    | Tests | Coverage                                          |
+| -------------------------------------------- | ----- | ------------------------------------------------- |
+| `mobalytics-graphql-endpoint.spec.ts`        | 9     | GraphQL HTTP layer, malformed queries, edge cases |
+| `mobalytics-graphql-account.spec.ts`         | 8     | Account retrieval after login                     |
+| `mobalytics-graphql-signin-extended.spec.ts` | 6     | Extended sign-in scenarios                        |
+| `mobalytics-graphql-auth.spec.ts`            | 4     | Auth success / failure                            |
 
-**`mobalytics-poe2-guides.spec.ts`** — 3 tests `@poe2 @ui`
-
-- Navigate from home to POE2 `@smoke @navigation`
-- Navigate to guides page `@navigation @authenticated`
-- Open specific guide from guides page `@regression @authenticated`
-
-### API Tests — 12 tests `@api @auth`
-
-**`mobalytics-graphql-auth.spec.ts`** — 12 tests
-
-- Successful login with email and password
-- Account retrieval after login
-- Failed / invalid credential scenarios
-- Empty credentials validation
+---
 
 ## 🏃 Running Tests
+
+### Setup
 
 ```bash
 # Install dependencies
 npm install
 
-# Run all tests (parallel, headless)
-npm test
+# Install Playwright browsers
+npx playwright install
 
-# Run specific test file
-npx playwright test tests/ui/mobalytics-home.spec.ts
-
-# Run tests with browser visible
-npm run test:headed
-
-# Run in debug mode (step through tests)
-npm run test:debug
-
-# Run in UI mode (interactive)
-npm run test:ui
-
-# Run against a specific browser
-npx playwright test --project=chromium
-npx playwright test --project=firefox
-npx playwright test --project=webkit
-
-# Run UI or API tests
-npx playwright test tests/ui/
-npx playwright test tests/api/
+# Copy environment template
+cp .env.example .env
+# Edit .env with your values
 ```
 
-### Filtering by Tag
+### Main Commands
+
+```bash
+# Run all tests (headless, Chromium, parallel)
+npm test
+
+# Run all tests + Allure report prompt
+npm run test:report
+
+# Run in headed mode (watch the browser)
+npm run test:headed
+
+# Interactive debug mode
+npm run test:debug
+
+# Playwright UI Mode (visual test runner)
+npm run test:ui
+```
+
+### Filter by Browser
+
+```bash
+npm run test:chromium
+npm run test:firefox
+npm run test:webkit
+
+# All three browsers simultaneously
+npm run test:cross-browser
+# or
+CROSS_BROWSER=true npm run test:report
+```
+
+### Filter by Tag
+
+```bash
+npm run test:smoke          # @smoke
+npm run test:critical        # @critical
+npm run test:regression      # @regression
+npm run test:navigation      # @navigation
+npm run test:poe2            # @poe2
+npm run test:lol             # @lol
+npm run test:responsive      # @responsive
+npm run test:cookie          # @cookie
+
+# API tests only
+npm run test:api
+```
+
+### Advanced `--grep` Patterns
 
 Playwright's `--grep` flag accepts a **regular expression**.
 
 ```bash
-# Single tag
-npx playwright test --grep @smoke
-npx playwright test --grep @poe2
+# OR — match any of these tags
+npx playwright test --grep "@smoke|@critical"
 
-# OR — any of these tags
-npx playwright test --grep "@smoke|@regression"
-
-# AND — tests that carry BOTH tags (regex lookahead)
+# AND — tests that carry BOTH tags (lookahead)
 npx playwright test --grep "(?=.*@poe2)(?=.*@smoke)"
 
 # Exclude a tag
 npx playwright test --grep-invert @visual
 
-# AND + exclude
-npx playwright test --grep "(?=.*@ui)(?=.*@regression)" --grep-invert @visual
+# Specific spec file
+npx playwright test tests/ui/mobalytics-lol.spec.ts
 ```
 
-> **Note:** `--grep "@poe2&@smoke"` does **not** work — `&` has no special meaning in regex.  
+> `--grep "@poe2&@smoke"` does **not** work — `&` has no meaning in regex.  
 > Use `(?=.*@poe2)(?=.*@smoke)` for AND logic.
+
+---
 
 ## 📊 Reports
 
 ```bash
-# View Playwright HTML report
+# Playwright HTML report (built-in)
 npx playwright show-report
 
-# Generate and view Allure report
+# Generate + open Allure report
 npm run report
 
-# Or step-by-step
+# Step by step
 npm run allure:generate
 npm run allure:open
 
-# Live Allure server (auto-refresh)
+# Live Allure server (auto-refreshes)
 npm run allure:serve
 ```
 
+---
+
 ## ⚙️ Configuration
 
-### Environment Variables (.env)
+### `.env` Reference
 
-```env
-BASE_URL=https://mobalytics.gg
-API_BASE_URL=https://api.mobalytics.gg
-USER_EMAIL=your.email@example.com
-USER_PASSWORD=your_password
-USER_USERNAME=your_username
+| Variable                | Default                         | Description                                        |
+| ----------------------- | ------------------------------- | -------------------------------------------------- |
+| `BASE_URL`              | `https://mobalytics.gg`         | Application under test                             |
+| `API_BASE_URL`          | `https://account.mobalytics.gg` | API base for auth tests                            |
+| `HEADLESS`              | `true`                          | Set to `false` to watch the browser                |
+| `BROWSER`               | `chromium`                      | Default browser                                    |
+| `CROSS_BROWSER`         | _(unset)_                       | Set to `true` to add Firefox + WebKit              |
+| `PARALLEL_WORKERS`      | 50% of CPU cores (min 4)        | Worker count                                       |
+| `DEFAULT_TIMEOUT`       | `15000`                         | Action timeout (ms)                                |
+| `NAVIGATION_TIMEOUT`    | `30000`                         | Page navigation timeout (ms)                       |
+| `TEST_TIMEOUT`          | `30000`                         | Hard per-test timeout (ms)                         |
+| `API_TIMEOUT`           | `10000`                         | API request timeout (ms)                           |
+| `RETRY_COUNT`           | `1` local / `2` on CI           | Retry attempts on failure                          |
+| `SCREENSHOT_ON_FAILURE` | `true`                          | Attach screenshot to report on failure             |
+| `VIDEO_ON_FAILURE`      | `true`                          | Retain video on failure                            |
+| `TRACE_ON_FAILURE`      | `true`                          | Retain Playwright trace on failure                 |
+| `LOG_LEVEL`             | `info`                          | Logger verbosity: `debug`\|`info`\|`warn`\|`error` |
+| `USER_EMAIL`            | —                               | Test account email (do not commit)                 |
+| `USER_PASSWORD`         | —                               | Test account password (do not commit)              |
+| `USER_USERNAME`         | —                               | Test account username                              |
+
+### Browser Projects Strategy
+
+By default only **Chromium** runs (fastest feedback loop). Firefox and WebKit are opt-in:
+
+```bash
+CROSS_BROWSER=true npx playwright test       # adds Firefox + WebKit
+npx playwright test --project=firefox         # single alternate browser
 ```
 
-### Playwright Config Highlights
+The `mobile-chrome` project activates automatically for `@responsive` tests (Pixel 7 viewport), replacing the `page.setViewportSize()` calls that previously ran inside `beforeEach`.
 
-- **Timeout**: 90 seconds for navigation (slow site)
-- **Wait Strategy**: `domcontentloaded` (faster than networkidle)
-- **Retries**: 2 retries on CI, 0 locally
-- **Workers**: 4 parallel workers
-- **Browsers**: Chromium, Firefox, WebKit
-- **Screenshots**: On failure
-- **Videos**: On first retry
+### Timeout Strategy
+
+```
+actionTimeout:      15 000 ms  — individual element interaction
+navigationTimeout:  30 000 ms  — page.goto() / URL change
+TEST_TIMEOUT:       30 000 ms  — hard kill per test (prevents infinite hangs)
+API_TIMEOUT:        10 000 ms  — Playwright request API calls
+```
+
+Override a single test when needed:
+
+```typescript
+test("extra slow test", async ({ page }) => {
+  test.setTimeout(60_000);
+  // ...
+});
+```
+
+---
+
+## 🔄 CI / CD
+
+### GitHub Actions Pipeline
+
+The workflow in `.github/workflows/playwright.yml` runs in three stages:
+
+```
+Push / PR
+  │
+  ├─ Stage 1 — Smoke & Critical (Chromium)  ~3 min  ← fast feedback gate
+  │
+  ├─ Stage 2 — Full Regression, 3 shards    ~6–8 min  ← runs after smoke passes
+  │            (each shard: Chromium, 6 workers)
+  │
+  ├─ Stage 3 — Cross-browser Smoke          ~5 min  ← main branch / release PRs only
+  │            (Firefox + WebKit, parallel)
+  │
+  └─ Report  — Merge shard results → Allure HTML artifact
+```
+
+**Total wall-clock time: ~9 minutes** for a full run.
+
+### CI npm scripts
+
+```bash
+npm run test:ci               # smoke + critical only (Chromium, 8 workers)
+npm run test:ci:full          # full suite (Chromium, 8 workers)
+npm run test:ci:cross-browser # smoke on Firefox + WebKit
+```
+
+---
+
+## 🔧 Troubleshooting
 
 ### Tests Timing Out
 
-1. Check if site is slow - use `domcontentloaded` instead of `networkidle`
-2. Increase specific waits, not global timeout
-3. Navigate directly to page instead of clicking through
+- Check live site latency; `NAVIGATION_TIMEOUT=45000` buys extra headroom without changing code
+- Override per-test: `test.setTimeout(60_000)`
+- Prefer `domcontentloaded` over `networkidle` for faster navigation waits
 
 ### Selectors Not Found
 
-1. Check if element is in iframe
-2. Try different selector strategies (role, text, testid)
-3. Add explicit wait: `waitFor({ state: "visible" })`
-4. Use `.first()` if multiple matches
+- Check for iframes: use `frameLocator` to scope into the frame
+- Prefer role / text / `data-testid` selectors over CSS
+- Add explicit `await expect(locator).toBeVisible()` before interacting
+- Use `.first()` when multiple matching elements exist
 
-### Tests Flaky
+### Flaky Tests
 
-1. Use `exact: true` for specific matches
-2. Add proper waits before actions
-3. Check for overlapping elements
-4. Handle popups/cookies/modals
+- Add `await expect(locator).toBeVisible()` before `.click()`
+- Handle cookie/modal banners before asserting page state
+- Use `page.waitForResponse()` to ensure API calls have completed
+- Avoid `page.waitForTimeout()` — replace with condition-based waits
+
+### Cookie Banner Interfering
+
+The `mobalytics-cookie.spec.ts` tests use raw `page.goto()` intentionally. All other tests go through `homePage.navigate()` which calls `acceptCookiesIfPresent()` automatically.
+
+---
 
 ## 🤝 Contributing
 
-1. Follow naming conventions: `mobalytics-<area>-<feature>.spec.ts`
-2. Use Page Object Model - no direct selectors in tests
-3. Add fixtures for new page objects
-4. Keep tests fast and focused
-5. Document complex logic
+1. **Naming**: `mobalytics-<area>-<feature>.spec.ts`
+2. **Architecture**: No direct selectors in test files — use Page Objects and Components
+3. **Fixtures**: Add new page objects as fixtures in `test.fixtures.ts`
+4. **Tags**: Tag every test and describe block — at minimum `@ui`/`@api` + severity
+5. **Data**: Add new URLs and strings to `test-data.ts`, not inline in tests
+6. **Steps**: Wrap logical actions in `test.step()` for readable Allure output
+7. **Secrets**: Never hardcode credentials — use `.env` and `process.env`
 
-## 📈 Test Results
+---
 
-Current Status:
+## 📈 Current Status
 
-- ✅ **46 UI tests** - All passing
-- ✅ **12 API tests** - All passing
-- ✅ **3 browsers** - Chromium, Firefox, WebKit
-- ✅ **~20-30s** average test suite execution time
+| Metric             | Value                           |
+| ------------------ | ------------------------------- |
+| Total tests        | **102**                         |
+| UI tests           | **75** across 8 spec files      |
+| API tests          | **27** across 4 spec files      |
+| Browsers (default) | **Chromium** (headless)         |
+| Browsers (full)    | **Chromium + Firefox + WebKit** |
+| Parallel workers   | **Auto (≥4, 50% of CPU cores)** |
+| CI run time        | **~9 min** (sharded, Chromium)  |
 
 Happy Testing! 🎉
