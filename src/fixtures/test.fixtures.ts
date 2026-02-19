@@ -1,6 +1,7 @@
 import { test as base, Page } from "@playwright/test";
 import { HomePage } from "../pages/HomePage";
 import { POE2Page } from "../pages/POE2Page";
+import { LolPage } from "../pages/LolPage";
 import { NavigationComponent } from "../components/NavigationComponent";
 import { FooterComponent } from "../components/FooterComponent";
 import { HeroComponent } from "../components/HeroComponent";
@@ -15,6 +16,7 @@ type MyFixtures = {
   // ── Page Object fixtures ──────────────────────────────────────────────────
   homePage: HomePage;
   poe2Page: POE2Page;
+  lolPage: LolPage;
   authenticatedPage: Page;
   authenticatedPoe2Page: POE2Page;
 
@@ -62,6 +64,11 @@ export const test = base.extend<MyFixtures>({
   poe2Page: async ({ page }, use) => {
     const poe2Page = new POE2Page(page);
     await use(poe2Page);
+  },
+
+  lolPage: async ({ page }, use) => {
+    const lolPage = new LolPage(page);
+    await use(lolPage);
   },
 
   // ── Component fixtures ────────────────────────────────────────────────────

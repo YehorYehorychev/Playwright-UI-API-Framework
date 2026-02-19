@@ -58,6 +58,24 @@ export const Tags = {
   community: "@community",
   footer: "@footer",
   social: "@social",
+
+  /** Tests scoped to the LoL section. */
+  lol: "@lol",
+
+  /** Tests scoped to the TFT section. */
+  tft: "@tft",
+
+  /** Tests scoped to the Valorant section. */
+  valorant: "@valorant",
+
+  /** Cookie / consent banner tests. */
+  cookie: "@cookie",
+
+  /** Responsive / mobile-viewport tests. */
+  responsive: "@responsive",
+
+  /** Page performance / load-time checks. */
+  performance: "@performance",
 } as const;
 
 export type Tag = (typeof Tags)[keyof typeof Tags];

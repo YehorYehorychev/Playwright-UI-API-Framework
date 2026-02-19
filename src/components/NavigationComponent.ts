@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 import { BaseComponent } from "./BaseComponent";
 
 /**
@@ -89,5 +89,16 @@ export class NavigationComponent extends BaseComponent {
     await this.twitterLink.waitFor({ state: "attached", timeout: 10000 });
     await this.facebookLink.waitFor({ state: "attached", timeout: 10000 });
     await this.instagramLink.waitFor({ state: "attached", timeout: 10000 });
+  }
+
+  /**
+   * Assert each social-media link targets the expected domain.
+   * Uses `getAttribute` so the assertion works even when the link opens
+   * in a new tab (no actual navigation occurs).
+   */
+  async verifySocialMediaLinkHrefs(): Promise<void> {
+    await expect(this.twitterLink).toHaveAttribute("href", /twitter\.com/);
+    await expect(this.facebookLink).toHaveAttribute("href", /facebook\.com/);
+    await expect(this.instagramLink).toHaveAttribute("href", /instagram\.com/);
   }
 }
