@@ -14,6 +14,23 @@ test.describe(
   "POE2 Navigation Tests",
   { tag: [Tags.ui, Tags.regression, Tags.poe2] },
   () => {
+    // ── Smoke ─────────────────────────────────────────────────────────────
+
+    test(
+      "should display correct page title on POE2 page",
+      { tag: Tags.smoke },
+      async ({ poe2Page }) => {
+        await test.step("Navigate directly to POE2 page", async () => {
+          await poe2Page.goto(`${config.baseURL}${TestData.urls.poe2}`);
+          await poe2Page.waitForPageLoad();
+        });
+
+        await test.step("Verify page title contains Path of Exile", async () => {
+          await expect(poe2Page.page).toHaveTitle(TestData.ui.poe2.pageTitle);
+        });
+      },
+    );
+
     test(
       "should navigate from home to POE2 page",
       { tag: [Tags.smoke, Tags.navigation] },
@@ -33,6 +50,32 @@ test.describe(
       },
     );
 
+    // ── Sub-navigation ────────────────────────────────────────────────────
+
+    test(
+      "should display POE2 in-page sub-navigation links",
+      {},
+      async ({ poe2Page }) => {
+        await test.step("Navigate directly to POE2 page", async () => {
+          await poe2Page.goto(`${config.baseURL}${TestData.urls.poe2}`);
+          await poe2Page.waitForPageLoad();
+        });
+
+        await test.step("Verify sub-nav links are visible", async () => {
+          // Use exact + first() to avoid strict-mode violations — the same
+          // label text appears in both the sub-nav bar and the page body.
+          for (const label of TestData.ui.poe2.subNavLinks) {
+            const link = poe2Page.page
+              .getByRole("link", { name: label, exact: true })
+              .first();
+            await expect(link).toBeVisible();
+          }
+        });
+      },
+    );
+
+    // ── Authenticated flows ───────────────────────────────────────────────
+
     test(
       "should navigate to POE2 guides page",
       { tag: [Tags.navigation, Tags.authenticated] },
@@ -48,6 +91,23 @@ test.describe(
 
         await test.step("Verify guides page loaded", async () => {
           await poe2Page.verifyOnGuidesPage();
+          await expect(poe2Page.page).toHaveURL(
+            TestData.urlPatterns.poe2Guides,
+          );
+        });
+      },
+    );
+
+    test(
+      "should access guides page without authentication (unauthenticated view)",
+      {},
+      async ({ poe2Page }) => {
+        await test.step("Navigate directly to POE2 guides page (unauthenticated)", async () => {
+          await poe2Page.goto(`${config.baseURL}${TestData.urls.poe2Guides}`);
+          await poe2Page.waitForPageLoad();
+        });
+
+        await test.step("Verify we landed on the guides page URL", async () => {
           await expect(poe2Page.page).toHaveURL(
             TestData.urlPatterns.poe2Guides,
           );

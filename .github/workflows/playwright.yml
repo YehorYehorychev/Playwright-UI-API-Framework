@@ -1,0 +1,216 @@
+##############################################################################
+# Playwright CI — Optimized for speed without sacrificing reliability
+#
+# Pipeline strategy:
+#   Stage 1 (fast feedback): Smoke + Critical tests on Chromium only (~3 min)
+#   Stage 2 (full regression): All tests on Chromium in parallel (~8 min)
+#   Stage 3 (cross-browser): Smoke tests on Firefox + WebKit (~5 min)
+#                             — only runs on main branch or release PRs
+#
+# Env var reference:
+#   CI=true            — enables strict mode (forbidOnly, reduced retries)
+#   PARALLEL_WORKERS   — Playwright worker count (set to runner vCPU count)
+#   CROSS_BROWSER      — activates Firefox + WebKit projects
+#   HEADLESS           — always omitted in CI (headless is the default)
+##############################################################################
+
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      grep:
+        description: "Tag filter (e.g. @smoke, @regression)"
+        required: false
+        default: ""
+      workers:
+        description: "Number of parallel workers"
+        required: false
+        default: "8"
+
+concurrency:
+  # Cancel in-progress runs for the same PR to avoid wasting runner minutes
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Stage 1: Fast smoke + critical gate — runs on every push/PR
+  # Fails fast so developers get feedback in under 5 minutes.
+  # ─────────────────────────────────────────────────────────────────────────
+  smoke:
+    name: "Smoke & Critical (Chromium)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers (Chromium only)
+        run: npx playwright install chromium --with-deps
+
+      - name: Run smoke & critical tests
+        env:
+          CI: "true"
+          PARALLEL_WORKERS: "8"
+          BASE_URL: ${{ vars.BASE_URL || 'https://mobalytics.gg' }}
+          RETRY_COUNT: "2"
+        run: npx playwright test --project=chromium --grep "@smoke|@critical" --workers=8
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Stage 2: Full regression on Chromium
+  # Runs after smoke passes; sharded across 3 machines for speed.
+  # ─────────────────────────────────────────────────────────────────────────
+  regression:
+    name: "Full Regression — Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false # Allow other shards to complete even if one fails
+      matrix:
+        shardIndex: [1, 2, 3]
+        shardTotal: [3]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers (Chromium only)
+        run: npx playwright install chromium --with-deps
+
+      - name: Run regression shard
+        env:
+          CI: "true"
+          PARALLEL_WORKERS: "6"
+          BASE_URL: ${{ vars.BASE_URL || 'https://mobalytics.gg' }}
+          RETRY_COUNT: "2"
+        run: |
+          npx playwright test --project=chromium \
+            --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \
+            --workers=6
+
+      - name: Upload shard results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-shard-${{ matrix.shardIndex }}-results
+          path: |
+            test-results/
+            allure-results/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Stage 3: Cross-browser smoke — only on main branch or release PRs
+  # Keeps the full test matrix out of the hot path.
+  # ─────────────────────────────────────────────────────────────────────────
+  cross-browser:
+    name: "Cross-Browser Smoke (${{ matrix.browser }})"
+    needs: smoke
+    if: github.ref == 'refs/heads/main' || contains(github.head_ref, 'release/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [firefox, webkit]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install ${{ matrix.browser }}
+        run: npx playwright install ${{ matrix.browser }} --with-deps
+
+      - name: Run cross-browser smoke
+        env:
+          CI: "true"
+          PARALLEL_WORKERS: "4"
+          BASE_URL: ${{ vars.BASE_URL || 'https://mobalytics.gg' }}
+          RETRY_COUNT: "2"
+        run: |
+          npx playwright test \
+            --project=${{ matrix.browser }} \
+            --grep "@smoke" \
+            --workers=4
+
+      - name: Upload cross-browser report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-browser-${{ matrix.browser }}-report
+          path: playwright-report/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Merge allure results from all shards and publish the report
+  # ─────────────────────────────────────────────────────────────────────────
+  report:
+    name: "Publish Allure Report"
+    needs: regression
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Download all shard results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: regression-shard-*-results
+          merge-multiple: true
+          path: allure-results/
+
+      - name: Install Allure CLI
+        run: npm install -g allure-commandline
+
+      - name: Generate Allure report
+        run: allure generate allure-results --clean -o allure-report
+
+      - name: Upload Allure report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 30

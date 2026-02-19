@@ -26,14 +26,6 @@ test.describe(
 
     test.describe("Header Navigation", { tag: Tags.navigation }, () => {
       test(
-        "should display logo/home link",
-        { tag: [Tags.smoke, Tags.critical] },
-        async ({ homePage }) => {
-          await homePage.verifyPageLoaded();
-        },
-      );
-
-      test(
         "should display all main navigation links",
         { tag: Tags.smoke },
         async ({ homePage }) => {
@@ -77,22 +69,6 @@ test.describe(
         { tag: Tags.smoke },
         async ({ homePage }) => {
           await homePage.verifyElementVisible(homePage.hero.mainHeading);
-        },
-      );
-
-      test(
-        "should display description text",
-        { tag: Tags.regression },
-        async ({ homePage }) => {
-          await homePage.hero.verifyJoinMillionGamersText();
-        },
-      );
-
-      test(
-        "should display download button",
-        { tag: [Tags.smoke, Tags.critical] },
-        async ({ homePage }) => {
-          await homePage.hero.verifyDownloadButtonVisible();
         },
       );
 

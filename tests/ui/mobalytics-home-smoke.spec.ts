@@ -62,6 +62,13 @@ test.describe(
           const buttonText = await homePage.hero.getDownloadButtonText();
           expect(buttonText.toUpperCase()).toContain("DOWNLOAD");
         });
+
+        await test.step("Verify download button href points to Overwolf", async () => {
+          await expect(homePage.hero.downloadButton).toHaveAttribute(
+            "href",
+            TestData.urlPatterns.downloadOverwolf,
+          );
+        });
       },
     );
 
@@ -94,17 +101,9 @@ test.describe(
     );
 
     test(
-      "should have all main elements visible",
+      "[SANITY] all critical home-page elements are visible",
       { tag: Tags.critical },
-      async ({ homePage }, testInfo) => {
-        await test.step("Capture and attach full page screenshot", async () => {
-          const screenshot = await homePage.takeFullPageScreenshot();
-          await testInfo.attach("home-page-smoke", {
-            body: screenshot,
-            contentType: "image/png",
-          });
-        });
-
+      async ({ homePage }) => {
         await test.step("Verify all key elements are present", async () => {
           await expect(homePage.navigation.logo).toBeVisible();
           await expect(homePage.hero.joinGamersText).toBeVisible();

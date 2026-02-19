@@ -17,24 +17,46 @@ export default defineConfig({
   /* Retry on CI only */
   retries: config.retryCount,
 
-  /* Opt out of parallel tests on CI. */
+  /* Workers: driven by config (auto-scales to CPU count by default) */
   workers: config.workers,
 
+  /**
+   * Global per-test timeout guard.
+   * A single test should never take longer than 30 s — if it does, something
+   * is functionally broken (infinite wait, hung navigation, etc.) and retrying
+   * it would only waste more time.
+   */
+  timeout: parseInt(process.env.TEST_TIMEOUT || "30000", 10),
+
   /* Reporter to use. */
-  reporter: [
-    ["html", { outputFolder: "playwright-report", open: "never" }],
-    ["json", { outputFile: "test-results/results.json" }],
-    ["junit", { outputFile: "test-results/junit.xml" }],
-    [
-      "allure-playwright",
-      {
-        outputFolder: config.allure.resultsDir,
-        detail: true,
-        suiteTitle: true,
-      },
-    ],
-    ["list"],
-  ],
+  reporter: process.env.CI
+    ? [
+        // CI: machine-readable formats + list for log streaming
+        ["junit", { outputFile: "test-results/junit.xml" }],
+        ["json", { outputFile: "test-results/results.json" }],
+        [
+          "allure-playwright",
+          {
+            outputFolder: config.allure.resultsDir,
+            detail: true,
+            suiteTitle: true,
+          },
+        ],
+        ["list"],
+      ]
+    : [
+        // Local: HTML report for easy browsing + list for real-time output
+        ["html", { outputFolder: "playwright-report", open: "never" }],
+        [
+          "allure-playwright",
+          {
+            outputFolder: config.allure.resultsDir,
+            detail: true,
+            suiteTitle: true,
+          },
+        ],
+        ["list"],
+      ],
 
   /* Shared settings for all the projects below. */
   use: {
@@ -59,9 +81,24 @@ export default defineConfig({
 
     /* Ignore HTTPS errors */
     ignoreHTTPSErrors: true,
+
+    /**
+     * Reuse an existing authenticated state across tests in the same worker.
+     * For unauthenticated smoke/regression tests this has no effect; for
+     * authenticated tests it eliminates repeated login round-trips entirely.
+     */
+    // storageState: process.env.STORAGE_STATE_PATH,  // uncomment after generating state
   },
 
-  /* Configure projects for major browsers */
+  /**
+   * Browser projects — strategy:
+   *
+   * • Chrome is the primary browser (highest real-world usage, fastest in CI).
+   * • Firefox and WebKit run only in the dedicated cross-browser pipeline
+   *   (CROSS_BROWSER=true) so the default run stays as fast as possible.
+   * • Mobile Chrome viewport is included for responsive tests instead of
+   *   resetting the viewport in every beforeEach.
+   */
   projects: [
     {
       name: "chromium",
@@ -71,20 +108,34 @@ export default defineConfig({
       },
     },
 
-    {
-      name: "firefox",
-      use: {
-        ...devices["Desktop Firefox"],
-        headless: config.headless,
-      },
-    },
+    // Cross-browser projects — activated by CROSS_BROWSER=true
+    ...(process.env.CROSS_BROWSER === "true"
+      ? [
+          {
+            name: "firefox",
+            use: {
+              ...devices["Desktop Firefox"],
+              headless: config.headless,
+            },
+          },
+          {
+            name: "webkit",
+            use: {
+              ...devices["Desktop Safari"],
+              headless: config.headless,
+            },
+          },
+        ]
+      : []),
 
+    // Dedicated mobile project used by @responsive tests
     {
-      name: "webkit",
+      name: "mobile-chrome",
       use: {
-        ...devices["Desktop Safari"],
+        ...devices["Pixel 7"],
         headless: config.headless,
       },
+      grep: /@responsive/,
     },
   ],
 });
