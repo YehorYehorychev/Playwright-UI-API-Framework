@@ -40,18 +40,28 @@ export const config: TestConfig = {
   apiBaseURL: process.env.API_BASE_URL || "https://api.mobalytics.gg",
   browser:
     (process.env.BROWSER as "chromium" | "firefox" | "webkit") || "chromium",
-  headless: process.env.HEADLESS === "true",
+  headless: process.env.HEADLESS !== "false",
   viewport: {
     width: parseInt(process.env.VIEWPORT_WIDTH || "1920", 10),
     height: parseInt(process.env.VIEWPORT_HEIGHT || "1080", 10),
   },
   timeouts: {
-    default: parseInt(process.env.DEFAULT_TIMEOUT || "30000", 10),
-    navigation: parseInt(process.env.NAVIGATION_TIMEOUT || "90000", 10),
-    api: parseInt(process.env.API_TIMEOUT || "15000", 10),
+    default: parseInt(process.env.DEFAULT_TIMEOUT || "15000", 10),
+    navigation: parseInt(process.env.NAVIGATION_TIMEOUT || "30000", 10),
+    api: parseInt(process.env.API_TIMEOUT || "10000", 10),
   },
-  retryCount: parseInt(process.env.RETRY_COUNT || "2", 10),
-  workers: parseInt(process.env.PARALLEL_WORKERS || "4", 10),
+  // 1 retry locally, 2 on CI to balance between stability and feedback loop time
+  retryCount: parseInt(
+    process.env.RETRY_COUNT || (process.env.CI ? "2" : "1"),
+    10,
+  ),
+  // Scale workers to available CPUs; 50% of logical cores is a safe default
+  // Override with PARALLEL_WORKERS env var in CI to match the runner's core count
+  workers: parseInt(
+    process.env.PARALLEL_WORKERS ||
+      String(Math.max(4, Math.floor(require("os").cpus().length / 2))),
+    10,
+  ),
   allure: {
     resultsDir: process.env.ALLURE_RESULTS_DIR || "allure-results",
     reportDir: process.env.ALLURE_REPORT_DIR || "allure-report",
