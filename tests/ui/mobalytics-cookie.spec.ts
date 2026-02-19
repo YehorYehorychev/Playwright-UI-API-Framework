@@ -60,7 +60,7 @@ test.describe(
     test(
       "should navigate to Cookie Policy page via 'Read More' link",
       {},
-      async ({ page }) => {
+      async ({ page, context }) => {
         const cookieBanner = new CookieBannerComponent(page);
 
         await test.step("Navigate to home page without accepting cookies", async () => {
@@ -68,12 +68,15 @@ test.describe(
           await page.waitForLoadState("domcontentloaded");
         });
 
-        await test.step("Click 'Read More' in cookie banner", async () => {
-          await cookieBanner.clickReadMore();
-        });
-
-        await test.step("Verify Cookie Policy URL", async () => {
-          await expect(page).toHaveURL(TestData.urlPatterns.cookie);
+        // The 'Read More' link has target="_blank" — it opens in a new tab.
+        await test.step("Click 'Read More' and verify Cookie Policy opens in new tab", async () => {
+          const [newTab] = await Promise.all([
+            context.waitForEvent("page"),
+            cookieBanner.readMoreLink.click(),
+          ]);
+          await newTab.waitForLoadState("domcontentloaded");
+          expect(newTab.url()).toMatch(TestData.urlPatterns.cookie);
+          await newTab.close();
         });
       },
     );

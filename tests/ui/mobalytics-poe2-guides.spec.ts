@@ -62,8 +62,12 @@ test.describe(
         });
 
         await test.step("Verify sub-nav links are visible", async () => {
+          // Use exact + first() to avoid strict-mode violations — the same
+          // label text appears in both the sub-nav bar and the page body.
           for (const label of TestData.ui.poe2.subNavLinks) {
-            const link = poe2Page.page.getByRole("link", { name: label });
+            const link = poe2Page.page
+              .getByRole("link", { name: label, exact: true })
+              .first();
             await expect(link).toBeVisible();
           }
         });

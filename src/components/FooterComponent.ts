@@ -30,25 +30,46 @@ export class FooterComponent extends BaseComponent {
   constructor(page: Page) {
     super(page);
 
-    const footer = page.locator("footer");
+    // The site renders the footer as <div class="footer-outer"> — no <footer> element.
+    const footer = page.locator(".footer-outer");
 
-    this.lol = footer.getByRole("link", { name: "League of Legends" }).first();
-    this.tft = footer.getByRole("link", { name: "Teamfight Tactics" }).first();
-    this.valorant = footer.getByRole("link", { name: "Valorant" }).first();
-    this.diablo4 = footer.getByRole("link", { name: "Diablo 4" }).first();
+    this.lol = footer
+      .getByRole("link", { name: "League of Legends", exact: true })
+      .first();
+    this.tft = footer
+      .getByRole("link", { name: "Teamfight Tactics", exact: true })
+      .first();
+    this.valorant = footer
+      .getByRole("link", { name: "Valorant", exact: true })
+      .first();
+    // Diablo 4 and POE2 section headings are not present in the footer as of 2026-02.
+    this.diablo4 = footer
+      .getByRole("link", { name: "Diablo 4", exact: true })
+      .first();
     this.poe2 = footer.getByRole("link", { name: /path of exile 2/i }).first();
-    this.resources = footer.getByRole("link", { name: "Resources" }).first();
-    this.blogLink = footer.getByRole("link", { name: "Blog" });
-    this.discordLink = footer.getByRole("link", { name: /discord/i });
-    this.termsLink = footer.getByRole("link", { name: /terms/i });
-    this.privacyLink = footer.getByRole("link", { name: /privacy policy/i });
+    this.resources = footer
+      .getByRole("link", { name: "Resources", exact: true })
+      .first();
+    this.blogLink = footer.getByRole("link", { name: "Blog", exact: true });
+    // Discord icon link has no visible text — scope by href.
+    this.discordLink = footer.locator('a[href*="discord"]');
+    this.termsLink = footer.getByRole("link", {
+      name: "Terms of Service",
+      exact: true,
+    });
+    this.privacyLink = footer.getByRole("link", {
+      name: "Privacy Policy",
+      exact: true,
+    });
     this.cookiePolicyLink = footer.getByRole("link", {
-      name: /cookie policy/i,
+      name: "Cookie Policy",
+      exact: true,
     });
     this.mobalyticsPlusLink = footer.getByRole("link", {
       name: /mobalytics\+/i,
     });
-    this.copyrightText = footer.getByText(/mobalytics/i).last();
+    // Copyright text lives in a plain text node inside .footer-outer.
+    this.copyrightText = footer.getByText(/Copyright/i);
   }
 
   /** Assert a footer section heading / link is visible. */

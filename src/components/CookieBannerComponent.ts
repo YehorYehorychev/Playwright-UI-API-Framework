@@ -22,25 +22,28 @@ export class CookieBannerComponent extends BaseComponent {
   constructor(page: Page) {
     super(page);
 
-    // The banner is identified by its primary text node
-    this.banner = page.locator(
-      '[class*="cookie"], [id*="cookie"], [aria-label*="cookie" i]',
-    );
+    // The site uses the Cookie Law Info WordPress plugin.
+    // Banner wrapper has a stable id: #cookie-law-info-bar
+    this.banner = page.locator("#cookie-law-info-bar");
 
-    // Accept button – most consent libraries use a button role
-    this.acceptButton = page.getByRole("button", { name: /accept/i });
+    // The "Accept" CTA is rendered as an <a> element (not <button>)
+    // with the stable id: #cookie_action_close_header
+    this.acceptButton = page.locator("#cookie_action_close_header");
 
-    // "Read more" / "More info" link
-    this.readMoreLink = page.getByRole("link", { name: /read more/i });
+    // "Read More" links to the Cookie Policy page and opens in a new tab.
+    this.readMoreLink = page.getByRole("link", {
+      name: "Read More",
+      exact: true,
+    });
   }
 
   /**
-   * Assert the cookie console banner is visible on the page.
+   * Assert the cookie consent banner wrapper is visible on the page.
    * Waits up to the default timeout for it to appear.
    */
   async verifyBannerVisible(): Promise<void> {
     this.log.info("Verifying cookie banner is visible");
-    await this.verifyElementVisible(this.acceptButton);
+    await this.verifyElementVisible(this.banner);
   }
 
   /**

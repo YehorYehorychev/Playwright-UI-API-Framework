@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import { NavigationComponent } from "../components/NavigationComponent";
 import { TestData } from "../data/test-data";
@@ -57,11 +57,16 @@ export class LolPage extends BasePage {
 
   /**
    * Assert the LoL in-page sub-navigation links are visible.
+   *
+   * Uses `exact: true` + `.first()` to avoid strict-mode violations caused
+   * by the same label appearing in the page body and the footer.
    */
   async verifySubNavVisible(): Promise<void> {
     for (const label of TestData.ui.lol.subNavLinks) {
-      const link = this.page.getByRole("link", { name: label });
-      await this.verifyElementVisible(link);
+      const link = this.page
+        .getByRole("link", { name: label, exact: true })
+        .first();
+      await expect(link).toBeVisible();
     }
   }
 

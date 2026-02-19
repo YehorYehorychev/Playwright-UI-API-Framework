@@ -29,19 +29,22 @@ test.describe(
       test(
         "should navigate to LoL ladder research via 'Read the research' link",
         {},
-        async ({ homePage, page }) => {
+        async ({ homePage, context }) => {
           await test.step("Verify 'Read the research' link is visible", async () => {
             await homePage.statistics.verifyResearchLinkVisible();
           });
 
-          await test.step("Click 'Read the research' link", async () => {
-            await homePage.statistics.readResearchLink.click();
-          });
-
-          await test.step("Verify navigation to research page", async () => {
-            await expect(page).toHaveURL(
+          // The link has target="_blank" — it opens in a new tab.
+          await test.step("Click 'Read the research' link and verify new tab URL", async () => {
+            const [newTab] = await Promise.all([
+              context.waitForEvent("page"),
+              homePage.statistics.readResearchLink.click(),
+            ]);
+            await newTab.waitForLoadState("domcontentloaded");
+            expect(newTab.url()).toMatch(
               TestData.urlPatterns.lolLadderResearch,
             );
+            await newTab.close();
           });
         },
       );

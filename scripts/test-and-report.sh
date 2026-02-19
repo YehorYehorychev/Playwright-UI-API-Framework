@@ -7,11 +7,38 @@
 # Usage:
 #   ./scripts/test-and-report.sh [playwright-args...]
 #
-# Examples:
+# ── Quick-run npm aliases (npm run <script>) ──────────────────────────────────
+#
+#   Full suite
+#     npm run test:report                    – all tests
+#     npm run test:report:chromium           – chromium only
+#
+#   By severity / type
+#     npm run test:report:smoke              – @smoke  (fast gate)
+#     npm run test:report:critical           – @critical
+#     npm run test:report:regression         – @regression (full nightly)
+#     npm run test:report:visual             – @visual (screenshot tests)
+#
+#   By domain / feature
+#     npm run test:report:api                – @api  (GraphQL)
+#     npm run test:report:ui                 – @ui   (all browser tests)
+#     npm run test:report:navigation         – @navigation
+#     npm run test:report:poe2               – @poe2
+#     npm run test:report:lol                – @lol
+#     npm run test:report:responsive         – @responsive (mobile viewport)
+#     npm run test:report:cookie             – @cookie (consent banner)
+#
+# ── Direct invocation examples ────────────────────────────────────────────────
 #   ./scripts/test-and-report.sh
 #   ./scripts/test-and-report.sh --project=chromium
 #   ./scripts/test-and-report.sh --grep "@smoke"
+#   ./scripts/test-and-report.sh --grep "@regression"
+#   ./scripts/test-and-report.sh --grep "@lol"
+#   ./scripts/test-and-report.sh --grep "@responsive"
+#   ./scripts/test-and-report.sh --grep "@cookie"
+#   ./scripts/test-and-report.sh --grep "@navigation"
 #   ./scripts/test-and-report.sh --grep "(?=.*@poe2)(?=.*@smoke)"
+#   ./scripts/test-and-report.sh tests/api/ --project=chromium
 # =============================================================================
 
 set -uo pipefail
