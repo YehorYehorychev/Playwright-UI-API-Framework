@@ -117,12 +117,7 @@ export const TestData = {
       lcsPartnershipText: "The official data partner of the LCS Amateur Scene",
       downloadButtonText: "Download desktop app for Windows",
       videoButtonName: "Video Play",
-      testimonialAuthors: [
-        "Poder",
-        "Hikamatsu",
-        "TF Blade",
-        "Midbeast",
-      ] as const,
+      testimonialAuthors: ["Poder", "Hikamatsu", "TF Blade", "Midbeast"] as const,
       trustedPartnerLogos: ["T1 Team", "Omen", "Team Liquid", "Tobii"] as const,
     },
     footer: {

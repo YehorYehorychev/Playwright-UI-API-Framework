@@ -21,79 +21,55 @@ test.describe(
 
     // ── Game links ──────────────────────────────────────────────────────────
 
-    test(
-      "should navigate to Diablo 4 page via header",
-      {},
-      async ({ homePage, page }) => {
-        await test.step("Click Diablo 4 nav link", async () => {
-          await homePage.navigation.navigateTo(homePage.navigation.navDiablo4);
-        });
+    test("should navigate to Diablo 4 page via header", {}, async ({ homePage, page }) => {
+      await test.step("Click Diablo 4 nav link", async () => {
+        await homePage.navigation.navigateTo(homePage.navigation.navDiablo4);
+      });
 
-        await test.step("Verify Diablo 4 URL", async () => {
-          await expect(page).toHaveURL(TestData.urlPatterns.diablo4);
-        });
-      },
-    );
+      await test.step("Verify Diablo 4 URL", async () => {
+        await expect(page).toHaveURL(TestData.urlPatterns.diablo4);
+      });
+    });
 
-    test(
-      "should navigate to Path of Exile 2 page via header",
-      {},
-      async ({ homePage, page }) => {
-        await test.step("Click PoE2 nav link", async () => {
-          await homePage.navigation.navigateTo(homePage.navigation.navPOE2);
-        });
+    test("should navigate to Path of Exile 2 page via header", {}, async ({ homePage, page }) => {
+      await test.step("Click PoE2 nav link", async () => {
+        await homePage.navigation.navigateTo(homePage.navigation.navPOE2);
+      });
 
-        await test.step("Verify PoE2 URL", async () => {
-          await expect(page).toHaveURL(TestData.urlPatterns.poe2);
-        });
-      },
-    );
+      await test.step("Verify PoE2 URL", async () => {
+        await expect(page).toHaveURL(TestData.urlPatterns.poe2);
+      });
+    });
 
-    test(
-      "should navigate to Borderlands 4 page via header",
-      {},
-      async ({ homePage, page }) => {
-        await test.step("Click Borderlands 4 nav link", async () => {
-          await homePage.navigation.navigateTo(
-            homePage.navigation.navBorderlands4,
-          );
-        });
+    test("should navigate to Borderlands 4 page via header", {}, async ({ homePage, page }) => {
+      await test.step("Click Borderlands 4 nav link", async () => {
+        await homePage.navigation.navigateTo(homePage.navigation.navBorderlands4);
+      });
 
-        await test.step("Verify Borderlands 4 URL", async () => {
-          await expect(page).toHaveURL(TestData.urlPatterns.borderlands4);
-        });
-      },
-    );
+      await test.step("Verify Borderlands 4 URL", async () => {
+        await expect(page).toHaveURL(TestData.urlPatterns.borderlands4);
+      });
+    });
 
-    test(
-      "should navigate to Nightreign page via header",
-      {},
-      async ({ homePage, page }) => {
-        await test.step("Click Nightreign nav link", async () => {
-          await homePage.navigation.navigateTo(
-            homePage.navigation.navNightreign,
-          );
-        });
+    test("should navigate to Nightreign page via header", {}, async ({ homePage, page }) => {
+      await test.step("Click Nightreign nav link", async () => {
+        await homePage.navigation.navigateTo(homePage.navigation.navNightreign);
+      });
 
-        await test.step("Verify Nightreign URL", async () => {
-          await expect(page).toHaveURL(TestData.urlPatterns.nightreign);
-        });
-      },
-    );
+      await test.step("Verify Nightreign URL", async () => {
+        await expect(page).toHaveURL(TestData.urlPatterns.nightreign);
+      });
+    });
 
-    test(
-      "should navigate to Deadlock page via header",
-      {},
-      async ({ homePage, page }) => {
-        await test.step("Click Deadlock nav link", async () => {
-          await homePage.navigation.navigateTo(homePage.navigation.navDeadlock);
-        });
+    test("should navigate to Deadlock page via header", {}, async ({ homePage, page }) => {
+      await test.step("Click Deadlock nav link", async () => {
+        await homePage.navigation.navigateTo(homePage.navigation.navDeadlock);
+      });
 
-        await test.step("Verify Deadlock URL", async () => {
-          await expect(page).toHaveURL(TestData.urlPatterns.deadlock);
-        });
-      },
-    );
+      await test.step("Verify Deadlock URL", async () => {
+        await expect(page).toHaveURL(TestData.urlPatterns.deadlock);
+      });
+    });
 
     test(
       "should navigate to Monster Hunter Wilds page via header",

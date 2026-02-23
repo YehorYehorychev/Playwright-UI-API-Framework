@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { type Page, type Locator } from "@playwright/test";
 import { BaseComponent } from "./BaseComponent";
 
 /**
@@ -15,9 +15,7 @@ export class FeaturesComponent extends BaseComponent {
 
     this.section = page.locator("text=How Mobalytics helps you win more");
     this.masterMeta = page.locator("text=Master the meta every patch");
-    this.identifyWeaknesses = page.locator(
-      "text=Identify and fix your weaknesses",
-    );
+    this.identifyWeaknesses = page.locator("text=Identify and fix your weaknesses");
     this.getVictories = page.locator("text=Get more victories and climb");
   }
 

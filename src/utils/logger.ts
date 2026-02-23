@@ -57,25 +57,19 @@ export class Logger {
 
   debug(message: string, data?: unknown): void {
     if (this.shouldLog("debug")) {
-      console.debug(
-        `${this.buildPrefix("debug")} ${message}${this.serialize(data)}`,
-      );
+      console.debug(`${this.buildPrefix("debug")} ${message}${this.serialize(data)}`);
     }
   }
 
   info(message: string, data?: unknown): void {
     if (this.shouldLog("info")) {
-      console.info(
-        `${this.buildPrefix("info")} ${message}${this.serialize(data)}`,
-      );
+      console.info(`${this.buildPrefix("info")} ${message}${this.serialize(data)}`);
     }
   }
 
   warn(message: string, data?: unknown): void {
     if (this.shouldLog("warn")) {
-      console.warn(
-        `${this.buildPrefix("warn")} ${message}${this.serialize(data)}`,
-      );
+      console.warn(`${this.buildPrefix("warn")} ${message}${this.serialize(data)}`);
     }
   }
 

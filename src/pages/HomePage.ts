@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { type Page, type Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import { NavigationComponent } from "../components/NavigationComponent";
 import { HeroComponent } from "../components/HeroComponent";
@@ -72,9 +72,7 @@ export class HomePage extends BasePage {
   async verifyPageTitle(expectedTitle: string): Promise<void> {
     const title = await this.getTitle();
     if (!title.includes(expectedTitle)) {
-      throw new Error(
-        `Expected title to contain "${expectedTitle}", but got "${title}"`,
-      );
+      throw new Error(`Expected title to contain "${expectedTitle}", but got "${title}"`);
     }
   }
 

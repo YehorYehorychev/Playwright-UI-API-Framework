@@ -44,7 +44,12 @@
     "allure:serve": "allure serve allure-results",
     "report": "npm run allure:generate && npm run allure:open",
     "clean": "rm -rf allure-results allure-report test-results playwright-report",
-    "codegen": "playwright codegen https://mobalytics.gg"
+    "codegen": "playwright codegen https://mobalytics.gg",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run lint"
   },
   "keywords": [
     "playwright",
@@ -62,7 +67,12 @@
     "allure-commandline": "^2.36.0",
     "allure-playwright": "^3.4.5",
     "dotenv": "^17.2.4",
+    "eslint": "^10.0.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.7.1",
+    "prettier": "^3.8.1",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "typescript-eslint": "^8.56.1"
   }
 }

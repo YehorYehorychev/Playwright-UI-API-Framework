@@ -58,16 +58,15 @@ test.describe(
     test("should return a GraphQL parse error for syntactically malformed query", async ({
       request,
     }) => {
-      const response =
-        await test.step("Send malformed GraphQL query", async () =>
-          request.post(apiUrl, {
-            data: {
-              operationName: null,
-              query: "{ this is } not { valid graphql !!!",
-              variables: {},
-            },
-            headers: jsonHeaders,
-          }));
+      const response = await test.step("Send malformed GraphQL query", async () =>
+        request.post(apiUrl, {
+          data: {
+            operationName: null,
+            query: "{ this is } not { valid graphql !!!",
+            variables: {},
+          },
+          headers: jsonHeaders,
+        }));
 
       await test.step("Verify no server error", async () => {
         expect(response.status()).toBeLessThan(500);
@@ -96,16 +95,15 @@ test.describe(
     test("should return a GraphQL field error for a non-existent top-level field", async ({
       request,
     }) => {
-      const response =
-        await test.step("Send query with unknown field", async () =>
-          request.post(apiUrl, {
-            data: {
-              operationName: null,
-              query: "query { thisFieldDefinitelyDoesNotExist { id name } }",
-              variables: {},
-            },
-            headers: jsonHeaders,
-          }));
+      const response = await test.step("Send query with unknown field", async () =>
+        request.post(apiUrl, {
+          data: {
+            operationName: null,
+            query: "query { thisFieldDefinitelyDoesNotExist { id name } }",
+            variables: {},
+          },
+          headers: jsonHeaders,
+        }));
 
       await test.step("Verify no server error", async () => {
         expect(response.status()).toBeLessThan(500);
@@ -129,9 +127,7 @@ test.describe(
      *   1. Send a POST with an empty string body and application/json header.
      *   2. Assert status is 400 or the body contains an error.
      */
-    test("should respond gracefully to an empty request body", async ({
-      request,
-    }) => {
+    test("should respond gracefully to an empty request body", async ({ request }) => {
       const response = await test.step("Send POST with empty body", async () =>
         request.post(apiUrl, {
           headers: jsonHeaders,
@@ -163,15 +159,14 @@ test.describe(
     test("should respond gracefully when the request body is not valid JSON", async ({
       request,
     }) => {
-      const response =
-        await test.step("Send POST with plain text body", async () =>
-          request.post(apiUrl, {
-            headers: {
-              "Content-Type": "text/plain",
-              Accept: "application/json",
-            },
-            data: "this is not valid json at all",
-          }));
+      const response = await test.step("Send POST with plain text body", async () =>
+        request.post(apiUrl, {
+          headers: {
+            "Content-Type": "text/plain",
+            Accept: "application/json",
+          },
+          data: "this is not valid json at all",
+        }));
 
       await test.step("Verify no server error is returned", async () => {
         log.debug("Plain-text body status", response.status());
@@ -190,12 +185,9 @@ test.describe(
      *   2. Assert the status code is not 200.
      *   3. (Optionally) verify a method-not-allowed body or status 405.
      */
-    test("should not accept GET requests on the GraphQL endpoint", async ({
-      request,
-    }) => {
-      const response =
-        await test.step("Send GET to GraphQL endpoint", async () =>
-          request.get(apiUrl, { headers: jsonHeaders }));
+    test("should not accept GET requests on the GraphQL endpoint", async ({ request }) => {
+      const response = await test.step("Send GET to GraphQL endpoint", async () =>
+        request.get(apiUrl, { headers: jsonHeaders }));
 
       await test.step("Verify method is not accepted as a success", async () => {
         log.debug("GET response status", response.status());
@@ -220,16 +212,15 @@ test.describe(
     test("should return a GraphQL error when operationName does not match the query", async ({
       request,
     }) => {
-      const response =
-        await test.step("Send mismatched operationName", async () =>
-          request.post(apiUrl, {
-            data: {
-              operationName: "GhostOp",
-              query: "query RealOp { __typename }",
-              variables: {},
-            },
-            headers: jsonHeaders,
-          }));
+      const response = await test.step("Send mismatched operationName", async () =>
+        request.post(apiUrl, {
+          data: {
+            operationName: "GhostOp",
+            query: "query RealOp { __typename }",
+            variables: {},
+          },
+          headers: jsonHeaders,
+        }));
 
       await test.step("Verify no server error", async () => {
         expect(response.status()).toBeLessThan(500);
@@ -298,18 +289,17 @@ test.describe(
     test("should ignore unknown top-level JSON keys and process the query normally", async ({
       request,
     }) => {
-      const response =
-        await test.step("Send query with extra JSON keys", async () =>
-          request.post(apiUrl, {
-            data: {
-              operationName: null,
-              query: "query { __typename }",
-              variables: {},
-              unknownKey: "some-random-value",
-              clientInfo: { version: "9.9.9", platform: "test" },
-            },
-            headers: jsonHeaders,
-          }));
+      const response = await test.step("Send query with extra JSON keys", async () =>
+        request.post(apiUrl, {
+          data: {
+            operationName: null,
+            query: "query { __typename }",
+            variables: {},
+            unknownKey: "some-random-value",
+            clientInfo: { version: "9.9.9", platform: "test" },
+          },
+          headers: jsonHeaders,
+        }));
 
       await test.step("Verify the endpoint processes the query normally", async () => {
         const body = await response.json();
@@ -336,12 +326,11 @@ test.describe(
     test("should handle a query with deeply nested non-existent fields without crashing", async ({
       request,
     }) => {
-      const response =
-        await test.step("Send query with deeply nested fake fields", async () =>
-          request.post(apiUrl, {
-            data: {
-              operationName: null,
-              query: `query {
+      const response = await test.step("Send query with deeply nested fake fields", async () =>
+        request.post(apiUrl, {
+          data: {
+            operationName: null,
+            query: `query {
                   account {
                     fakeField1 {
                       fakeField2 {
@@ -352,10 +341,10 @@ test.describe(
                     }
                   }
                 }`,
-              variables: {},
-            },
-            headers: jsonHeaders,
-          }));
+            variables: {},
+          },
+          headers: jsonHeaders,
+        }));
 
       await test.step("Verify no server error", async () => {
         expect(response.status()).toBeLessThan(500);

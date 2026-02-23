@@ -1,11 +1,7 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 import config from "../../config/test.config";
 import { createLogger } from "../utils/logger";
-import {
-  ElementNotFoundError,
-  NavigationError,
-  PageLoadError,
-} from "../errors/test-errors";
+import { ElementNotFoundError, NavigationError, PageLoadError } from "../errors/test-errors";
 
 export class BasePage {
   protected readonly log = createLogger(this.constructor.name);
@@ -25,7 +21,7 @@ export class BasePage {
         waitUntil: "domcontentloaded",
         timeout: config.timeouts.navigation,
       });
-    } catch (err) {
+    } catch {
       throw new PageLoadError(url, config.timeouts.navigation);
     }
   }
@@ -102,11 +98,9 @@ export class BasePage {
    */
   async waitForPageLoad(): Promise<void> {
     await this.page.waitForLoadState("domcontentloaded");
-    await this.page
-      .waitForLoadState("networkidle", { timeout: 10000 })
-      .catch(() => {
-        this.log.warn("Network idle timed out — continuing anyway");
-      });
+    await this.page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {
+      this.log.warn("Network idle timed out — continuing anyway");
+    });
   }
 
   /**
@@ -154,10 +148,7 @@ export class BasePage {
   /**
    * Verify element text contains expected text
    */
-  async verifyTextContains(
-    locator: Locator,
-    expectedText: string,
-  ): Promise<void> {
+  async verifyTextContains(locator: Locator, expectedText: string): Promise<void> {
     await expect(locator).toContainText(expectedText);
   }
 
@@ -179,10 +170,7 @@ export class BasePage {
    * Assert that clicking a locator navigates to a URL matching the expected pattern.
    * Throws NavigationError for a more descriptive failure message.
    */
-  async assertNavigatesTo(
-    locator: Locator,
-    expectedPattern: string | RegExp,
-  ): Promise<void> {
+  async assertNavigatesTo(locator: Locator, expectedPattern: string | RegExp): Promise<void> {
     await this.click(locator);
     await this.page.waitForLoadState("domcontentloaded");
     const actual = this.page.url();

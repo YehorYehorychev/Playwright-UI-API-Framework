@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 import { BaseComponent } from "./BaseComponent";
 
 /**
@@ -33,23 +33,13 @@ export class FooterComponent extends BaseComponent {
     // The site renders the footer as <div class="footer-outer"> — no <footer> element.
     const footer = page.locator(".footer-outer");
 
-    this.lol = footer
-      .getByRole("link", { name: "League of Legends", exact: true })
-      .first();
-    this.tft = footer
-      .getByRole("link", { name: "Teamfight Tactics", exact: true })
-      .first();
-    this.valorant = footer
-      .getByRole("link", { name: "Valorant", exact: true })
-      .first();
+    this.lol = footer.getByRole("link", { name: "League of Legends", exact: true }).first();
+    this.tft = footer.getByRole("link", { name: "Teamfight Tactics", exact: true }).first();
+    this.valorant = footer.getByRole("link", { name: "Valorant", exact: true }).first();
     // Diablo 4 and POE2 section headings are not present in the footer as of 2026-02.
-    this.diablo4 = footer
-      .getByRole("link", { name: "Diablo 4", exact: true })
-      .first();
+    this.diablo4 = footer.getByRole("link", { name: "Diablo 4", exact: true }).first();
     this.poe2 = footer.getByRole("link", { name: /path of exile 2/i }).first();
-    this.resources = footer
-      .getByRole("link", { name: "Resources", exact: true })
-      .first();
+    this.resources = footer.getByRole("link", { name: "Resources", exact: true }).first();
     this.blogLink = footer.getByRole("link", { name: "Blog", exact: true });
     // Discord icon link has no visible text — scope by href.
     this.discordLink = footer.locator('a[href*="discord"]');

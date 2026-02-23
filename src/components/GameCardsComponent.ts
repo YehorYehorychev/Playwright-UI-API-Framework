@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { type Page, type Locator } from "@playwright/test";
 import { BaseComponent } from "./BaseComponent";
 
 /**
@@ -15,20 +15,12 @@ export class GameCardsComponent extends BaseComponent {
   constructor(page: Page) {
     super(page);
 
-    this.section = page
-      .locator('[class*="games"], [class*="game-list"]')
-      .first();
+    this.section = page.locator('[class*="games"], [class*="game-list"]').first();
     this.lolGameCard = page.getByRole("link", { name: /logo-lol/i }).first();
     this.tftGameCard = page.getByRole("link", { name: /logo-tft/i }).first();
-    this.poe2GameCard = page
-      .getByRole("link", { name: /mobalytics.atlassian/i })
-      .first();
-    this.diablo4GameCard = page
-      .getByRole("link", { name: /logo-diablo-4/i })
-      .first();
-    this.valorantGameCard = page
-      .getByRole("link", { name: /logo-valorant/i })
-      .first();
+    this.poe2GameCard = page.getByRole("link", { name: /mobalytics.atlassian/i }).first();
+    this.diablo4GameCard = page.getByRole("link", { name: /logo-diablo-4/i }).first();
+    this.valorantGameCard = page.getByRole("link", { name: /logo-valorant/i }).first();
   }
 
   /** Assert a specific game logo card is visible. */

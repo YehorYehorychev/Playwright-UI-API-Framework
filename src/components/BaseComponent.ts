@@ -1,6 +1,6 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 import { createLogger } from "../utils/logger";
-import { Logger } from "../utils/logger";
+import { type Logger } from "../utils/logger";
 import { ElementNotFoundError } from "../errors/test-errors";
 import config from "../../config/test.config";
 
@@ -23,10 +23,7 @@ export abstract class BaseComponent {
     this.log = createLogger(this.constructor.name);
   }
 
-  protected async waitForElement(
-    locator: Locator,
-    timeout?: number,
-  ): Promise<void> {
+  protected async waitForElement(locator: Locator, timeout?: number): Promise<void> {
     const ms = timeout ?? config.timeouts.default;
     try {
       await locator.waitFor({ state: "visible", timeout: ms });
