@@ -1,7 +1,8 @@
 import { type Page, type Locator, expect } from "@playwright/test";
 import config from "../../config/test.config";
 import { createLogger } from "../utils/logger";
-import { ElementNotFoundError, NavigationError, PageLoadError } from "../errors/test-errors";
+import { NavigationError, PageLoadError } from "../errors/test-errors";
+import { waitForElement } from "../utils/element-wait.utils";
 
 export class BasePage {
   protected readonly log = createLogger(this.constructor.name);
@@ -27,18 +28,12 @@ export class BasePage {
   }
 
   /**
-   * Wait for element to be visible
+   * Wait for element to be visible.
+   * Delegates to the shared waitForElement utility to avoid duplication
+   * between BasePage and BaseComponent.
    */
   async waitForElement(locator: Locator, timeout?: number): Promise<void> {
-    const ms = timeout ?? config.timeouts.default;
-    try {
-      await locator.waitFor({ state: "visible", timeout: ms });
-    } catch {
-      const description = await locator
-        .evaluate((el) => el.outerHTML.slice(0, 120))
-        .catch(() => locator.toString());
-      throw new ElementNotFoundError(description, ms);
-    }
+    await waitForElement(locator, timeout);
   }
 
   /**
