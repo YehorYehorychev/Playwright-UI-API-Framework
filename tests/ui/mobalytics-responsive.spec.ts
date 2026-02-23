@@ -33,25 +33,17 @@ test.describe(
       },
     );
 
-    test(
-      "should display main H1 heading on mobile",
-      {},
-      async ({ homePage }) => {
-        await test.step("Verify main heading is visible", async () => {
-          await expect(homePage.hero.mainHeading).toBeVisible();
-        });
-      },
-    );
+    test("should display main H1 heading on mobile", {}, async ({ homePage }) => {
+      await test.step("Verify main heading is visible", async () => {
+        await expect(homePage.hero.mainHeading).toBeVisible();
+      });
+    });
 
-    test(
-      "should display download button on mobile",
-      {},
-      async ({ homePage }) => {
-        await test.step("Verify download button is visible", async () => {
-          await homePage.hero.verifyDownloadButtonVisible();
-        });
-      },
-    );
+    test("should display download button on mobile", {}, async ({ homePage }) => {
+      await test.step("Verify download button is visible", async () => {
+        await homePage.hero.verifyDownloadButtonVisible();
+      });
+    });
 
     test("should display brand logo on mobile", {}, async ({ homePage }) => {
       await test.step("Verify logo is visible in the nav", async () => {

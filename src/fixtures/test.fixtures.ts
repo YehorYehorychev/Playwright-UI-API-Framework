@@ -1,4 +1,4 @@
-import { test as base, Page } from "@playwright/test";
+import { test as base, type Page } from "@playwright/test";
 import { HomePage } from "../pages/HomePage";
 import { POE2Page } from "../pages/POE2Page";
 import { LolPage } from "../pages/LolPage";
@@ -41,9 +41,7 @@ export const test = base.extend<MyFixtures>({
     async ({ page }, use, testInfo) => {
       await use();
       if (testInfo.status !== testInfo.expectedStatus) {
-        const screenshot = await page
-          .screenshot({ fullPage: true })
-          .catch(() => null);
+        const screenshot = await page.screenshot({ fullPage: true }).catch(() => null);
         if (screenshot) {
           await testInfo.attach("screenshot on failure", {
             body: screenshot,

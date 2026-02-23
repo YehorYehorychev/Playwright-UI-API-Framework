@@ -1,5 +1,4 @@
 import * as dotenv from "dotenv";
-import * as path from "path";
 
 // Load environment variables
 dotenv.config();
@@ -38,8 +37,7 @@ export interface TestConfig {
 export const config: TestConfig = {
   baseURL: process.env.BASE_URL || "https://mobalytics.gg",
   apiBaseURL: process.env.API_BASE_URL || "https://api.mobalytics.gg",
-  browser:
-    (process.env.BROWSER as "chromium" | "firefox" | "webkit") || "chromium",
+  browser: (process.env.BROWSER as "chromium" | "firefox" | "webkit") || "chromium",
   headless: process.env.HEADLESS !== "false",
   viewport: {
     width: parseInt(process.env.VIEWPORT_WIDTH || "1920", 10),
@@ -51,10 +49,7 @@ export const config: TestConfig = {
     api: parseInt(process.env.API_TIMEOUT || "10000", 10),
   },
   // 1 retry locally, 2 on CI to balance between stability and feedback loop time
-  retryCount: parseInt(
-    process.env.RETRY_COUNT || (process.env.CI ? "2" : "1"),
-    10,
-  ),
+  retryCount: parseInt(process.env.RETRY_COUNT || (process.env.CI ? "2" : "1"), 10),
   // Scale workers to available CPUs; 50% of logical cores is a safe default
   // Override with PARALLEL_WORKERS env var in CI to match the runner's core count
   workers: parseInt(

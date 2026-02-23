@@ -1,11 +1,8 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 import config from "../../config/test.config";
 import { createLogger } from "../utils/logger";
-import {
-  ElementNotFoundError,
-  NavigationError,
-  PageLoadError,
-} from "../errors/test-errors";
+import { NavigationError, PageLoadError } from "../errors/test-errors";
+import { waitForElement } from "../utils/element-wait.utils";
 
 export class BasePage {
   protected readonly log = createLogger(this.constructor.name);
@@ -25,24 +22,18 @@ export class BasePage {
         waitUntil: "domcontentloaded",
         timeout: config.timeouts.navigation,
       });
-    } catch (err) {
+    } catch {
       throw new PageLoadError(url, config.timeouts.navigation);
     }
   }
 
   /**
-   * Wait for element to be visible
+   * Wait for element to be visible.
+   * Delegates to the shared waitForElement utility to avoid duplication
+   * between BasePage and BaseComponent.
    */
   async waitForElement(locator: Locator, timeout?: number): Promise<void> {
-    const ms = timeout ?? config.timeouts.default;
-    try {
-      await locator.waitFor({ state: "visible", timeout: ms });
-    } catch {
-      const description = await locator
-        .evaluate((el) => el.outerHTML.slice(0, 120))
-        .catch(() => locator.toString());
-      throw new ElementNotFoundError(description, ms);
-    }
+    await waitForElement(locator, timeout);
   }
 
   /**
@@ -102,11 +93,9 @@ export class BasePage {
    */
   async waitForPageLoad(): Promise<void> {
     await this.page.waitForLoadState("domcontentloaded");
-    await this.page
-      .waitForLoadState("networkidle", { timeout: 10000 })
-      .catch(() => {
-        this.log.warn("Network idle timed out — continuing anyway");
-      });
+    await this.page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {
+      this.log.warn("Network idle timed out — continuing anyway");
+    });
   }
 
   /**
@@ -123,13 +112,6 @@ export class BasePage {
    */
   async scrollToElement(locator: Locator): Promise<void> {
     await locator.scrollIntoViewIfNeeded();
-  }
-
-  /**
-   * Wait for specific time
-   */
-  async wait(milliseconds: number): Promise<void> {
-    await this.page.waitForTimeout(milliseconds);
   }
 
   /**
@@ -154,10 +136,7 @@ export class BasePage {
   /**
    * Verify element text contains expected text
    */
-  async verifyTextContains(
-    locator: Locator,
-    expectedText: string,
-  ): Promise<void> {
+  async verifyTextContains(locator: Locator, expectedText: string): Promise<void> {
     await expect(locator).toContainText(expectedText);
   }
 
@@ -179,10 +158,7 @@ export class BasePage {
    * Assert that clicking a locator navigates to a URL matching the expected pattern.
    * Throws NavigationError for a more descriptive failure message.
    */
-  async assertNavigatesTo(
-    locator: Locator,
-    expectedPattern: string | RegExp,
-  ): Promise<void> {
+  async assertNavigatesTo(locator: Locator, expectedPattern: string | RegExp): Promise<void> {
     await this.click(locator);
     await this.page.waitForLoadState("domcontentloaded");
     const actual = this.page.url();

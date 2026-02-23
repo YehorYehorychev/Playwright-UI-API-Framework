@@ -63,6 +63,7 @@ playwright-mcp-tests/
 │   │   ├── LolPage.ts              # League of Legends hub page
 │   │   └── POE2Page.ts             # Path of Exile 2 page
 │   └── utils/
+│       ├── element-wait.utils.ts   # Shared waitForElement helper (used by BasePage & BaseComponent)
 │       ├── helpers.ts              # General utilities
 │       └── logger.ts               # Structured, levelled console logger
 ├── tests/
@@ -257,12 +258,14 @@ cp .env.example .env
 
 ### Main Commands
 
-```bash
-# Run all tests (headless, Chromium, parallel)
-npm test
+> **Recommended for local development:** use `npm run test:report` — it runs the full test suite and automatically generates and opens the interactive Allure report when finished.
 
-# Run all tests + Allure report prompt
+```bash
+# ✅ PRIMARY command — run all tests + generate & open Allure report
 npm run test:report
+
+# Run all tests without a report (headless, Chromium, parallel)
+npm test
 
 # Run in headed mode (watch the browser)
 npm run test:headed
@@ -298,10 +301,31 @@ npm run test:poe2            # @poe2
 npm run test:lol             # @lol
 npm run test:responsive      # @responsive
 npm run test:cookie          # @cookie
+npm run test:visual          # @visual
 
 # API tests only
 npm run test:api
 ```
+
+### Filter by Tag + Allure Report
+
+Every tag filter has a matching `test:report:*` variant that runs the subset **and** opens the Allure report automatically:
+
+```bash
+npm run test:report:smoke       # @smoke  + Allure
+npm run test:report:critical    # @critical + Allure
+npm run test:report:regression  # @regression + Allure
+npm run test:report:navigation  # @navigation + Allure
+npm run test:report:poe2        # @poe2 + Allure
+npm run test:report:lol         # @lol + Allure
+npm run test:report:responsive  # @responsive + Allure
+npm run test:report:cookie      # @cookie + Allure
+npm run test:report:visual      # @visual + Allure
+npm run test:report:api         # @api + Allure
+npm run test:report:chromium    # Chromium project + Allure
+```
+
+---
 
 ### Advanced `--grep` Patterns
 

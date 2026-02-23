@@ -42,9 +42,7 @@ export class NavigationError extends Error {
  */
 export class AuthenticationError extends Error {
   constructor(reason?: string) {
-    super(
-      reason ? `Authentication failed: ${reason}` : "Authentication failed",
-    );
+    super(reason ? `Authentication failed: ${reason}` : "Authentication failed");
     this.name = "AuthenticationError";
   }
 }

@@ -18,7 +18,7 @@
  *  • level is a number (or null) — not a string
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect, type APIRequestContext } from "@playwright/test";
 import { Tags } from "../../src/data/tags";
 import { TestData } from "../../src/data/test-data";
 import { createLogger } from "../../src/utils/logger";
@@ -71,7 +71,7 @@ const defaultHeaders = {
  * Fails the test step if sign-in does not succeed.
  */
 async function signInAndFetchAccount(
-  request: import("@playwright/test").APIRequestContext,
+  request: APIRequestContext,
   query: string = ACCOUNT_QUERY_FULL,
 ) {
   const { email, password } = TestData.credentials.validUser;
@@ -119,16 +119,15 @@ test.describe("GraphQL Account Query", { tag: [Tags.api, Tags.auth] }, () => {
     "should return an error or null account when requesting without authentication",
     { tag: Tags.regression },
     async ({ request }) => {
-      const response =
-        await test.step("Send account query without authentication", async () =>
-          request.post(apiUrl, {
-            data: {
-              operationName: null,
-              query: ACCOUNT_QUERY_FULL,
-              variables: {},
-            },
-            headers: defaultHeaders,
-          }));
+      const response = await test.step("Send account query without authentication", async () =>
+        request.post(apiUrl, {
+          data: {
+            operationName: null,
+            query: ACCOUNT_QUERY_FULL,
+            variables: {},
+          },
+          headers: defaultHeaders,
+        }));
 
       await test.step("Verify unauthenticated access is rejected", async () => {
         const body = await response.json();
@@ -191,14 +190,12 @@ test.describe("GraphQL Account Query", { tag: [Tags.api, Tags.auth] }, () => {
 
         // referrerCode — nullable string
         expect(
-          account.referrerCode === null ||
-            typeof account.referrerCode === "string",
+          account.referrerCode === null || typeof account.referrerCode === "string",
         ).toBeTruthy();
 
         // referralStatus — nullable string
         expect(
-          account.referralStatus === null ||
-            typeof account.referralStatus === "string",
+          account.referralStatus === null || typeof account.referralStatus === "string",
         ).toBeTruthy();
       });
     },
@@ -284,9 +281,7 @@ test.describe("GraphQL Account Query", { tag: [Tags.api, Tags.auth] }, () => {
         log.debug("referrerCode value", account.referrerCode);
 
         // Key must be present; value can legitimately be null
-        expect(
-          Object.prototype.hasOwnProperty.call(account, "referrerCode"),
-        ).toBeTruthy();
+        expect(Object.prototype.hasOwnProperty.call(account, "referrerCode")).toBeTruthy();
       });
     },
   );
@@ -312,9 +307,7 @@ test.describe("GraphQL Account Query", { tag: [Tags.api, Tags.auth] }, () => {
         const account = accountBody.data.account;
         log.debug("referralStatus value", account.referralStatus);
 
-        expect(
-          Object.prototype.hasOwnProperty.call(account, "referralStatus"),
-        ).toBeTruthy();
+        expect(Object.prototype.hasOwnProperty.call(account, "referralStatus")).toBeTruthy();
       });
     },
   );
@@ -335,10 +328,7 @@ test.describe("GraphQL Account Query", { tag: [Tags.api, Tags.auth] }, () => {
     "should return only requested fields when using a partial account selection",
     { tag: [Tags.regression, Tags.authenticated] },
     async ({ request }) => {
-      const { accountBody } = await signInAndFetchAccount(
-        request,
-        ACCOUNT_QUERY_PARTIAL,
-      );
+      const { accountBody } = await signInAndFetchAccount(request, ACCOUNT_QUERY_PARTIAL);
 
       await test.step("Verify only uid and email are returned", async () => {
         const account = accountBody.data.account;
@@ -384,9 +374,7 @@ test.describe("GraphQL Account Query", { tag: [Tags.api, Tags.auth] }, () => {
 
         // Acceptable types: null, number, or string (label or numeric)
         const isAcceptable =
-          level === null ||
-          typeof level === "number" ||
-          typeof level === "string";
+          level === null || typeof level === "number" || typeof level === "string";
 
         expect(isAcceptable).toBeTruthy();
       });

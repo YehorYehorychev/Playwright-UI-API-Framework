@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import { NavigationComponent } from "../components/NavigationComponent";
 import { TestData } from "../data/test-data";
@@ -63,9 +63,7 @@ export class LolPage extends BasePage {
    */
   async verifySubNavVisible(): Promise<void> {
     for (const label of TestData.ui.lol.subNavLinks) {
-      const link = this.page
-        .getByRole("link", { name: label, exact: true })
-        .first();
+      const link = this.page.getByRole("link", { name: label, exact: true }).first();
       await expect(link).toBeVisible();
     }
   }
@@ -75,9 +73,7 @@ export class LolPage extends BasePage {
   private async verifyPageTitle_internal(pattern: RegExp): Promise<void> {
     const title = await this.page.title();
     if (!pattern.test(title)) {
-      throw new Error(
-        `Page title "${title}" did not match expected pattern ${pattern}`,
-      );
+      throw new Error(`Page title "${title}" did not match expected pattern ${pattern}`);
     }
   }
 }

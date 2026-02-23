@@ -19,43 +19,35 @@ test.describe(
   "Mobalytics — Cookie Consent Banner",
   { tag: [Tags.ui, Tags.regression, Tags.cookie] },
   () => {
-    test(
-      "should display cookie consent banner on first visit",
-      {},
-      async ({ page }) => {
-        const cookieBanner = new CookieBannerComponent(page);
+    test("should display cookie consent banner on first visit", {}, async ({ page }) => {
+      const cookieBanner = new CookieBannerComponent(page);
 
-        await test.step("Navigate to home page without accepting cookies", async () => {
-          await page.goto(config.baseURL);
-          await page.waitForLoadState("domcontentloaded");
-        });
+      await test.step("Navigate to home page without accepting cookies", async () => {
+        await page.goto(config.baseURL);
+        await page.waitForLoadState("domcontentloaded");
+      });
 
-        await test.step("Verify cookie banner is visible", async () => {
-          await cookieBanner.verifyBannerVisible();
-        });
-      },
-    );
+      await test.step("Verify cookie banner is visible", async () => {
+        await cookieBanner.verifyBannerVisible();
+      });
+    });
 
-    test(
-      "should dismiss cookie banner after accepting",
-      {},
-      async ({ page }) => {
-        const cookieBanner = new CookieBannerComponent(page);
+    test("should dismiss cookie banner after accepting", {}, async ({ page }) => {
+      const cookieBanner = new CookieBannerComponent(page);
 
-        await test.step("Navigate to home page without accepting cookies", async () => {
-          await page.goto(config.baseURL);
-          await page.waitForLoadState("domcontentloaded");
-        });
+      await test.step("Navigate to home page without accepting cookies", async () => {
+        await page.goto(config.baseURL);
+        await page.waitForLoadState("domcontentloaded");
+      });
 
-        await test.step("Accept cookies", async () => {
-          await cookieBanner.acceptCookies();
-        });
+      await test.step("Accept cookies", async () => {
+        await cookieBanner.acceptCookies();
+      });
 
-        await test.step("Verify banner is no longer visible", async () => {
-          await cookieBanner.verifyBannerDismissed();
-        });
-      },
-    );
+      await test.step("Verify banner is no longer visible", async () => {
+        await cookieBanner.verifyBannerDismissed();
+      });
+    });
 
     test(
       "should navigate to Cookie Policy page via 'Read More' link",

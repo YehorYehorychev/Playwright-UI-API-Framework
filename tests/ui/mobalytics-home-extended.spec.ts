@@ -41,9 +41,7 @@ test.describe(
               homePage.statistics.readResearchLink.click(),
             ]);
             await newTab.waitForLoadState("domcontentloaded");
-            expect(newTab.url()).toMatch(
-              TestData.urlPatterns.lolLadderResearch,
-            );
+            expect(newTab.url()).toMatch(TestData.urlPatterns.lolLadderResearch);
             await newTab.close();
           });
         },
@@ -69,78 +67,52 @@ test.describe(
     // ── Footer legal links ──────────────────────────────────────────────────
 
     test.describe("Footer — Legal Links", { tag: Tags.footer }, () => {
-      test(
-        "should display Terms, Privacy, and Cookie Policy links",
-        {},
-        async ({ homePage }) => {
-          await test.step("Verify all legal links visible in footer", async () => {
-            await homePage.footer.verifyLegalLinksVisible();
-          });
-        },
-      );
+      test("should display Terms, Privacy, and Cookie Policy links", {}, async ({ homePage }) => {
+        await test.step("Verify all legal links visible in footer", async () => {
+          await homePage.footer.verifyLegalLinksVisible();
+        });
+      });
 
-      test(
-        "should navigate to Terms of Service page",
-        {},
-        async ({ homePage, page }) => {
-          await test.step("Click Terms link in footer", async () => {
-            await homePage.footer.navigateViaLink(homePage.footer.termsLink);
-          });
+      test("should navigate to Terms of Service page", {}, async ({ homePage, page }) => {
+        await test.step("Click Terms link in footer", async () => {
+          await homePage.footer.navigateViaLink(homePage.footer.termsLink);
+        });
 
-          await test.step("Verify Terms URL", async () => {
-            await expect(page).toHaveURL(TestData.urlPatterns.terms);
-          });
-        },
-      );
+        await test.step("Verify Terms URL", async () => {
+          await expect(page).toHaveURL(TestData.urlPatterns.terms);
+        });
+      });
 
-      test(
-        "should navigate to Privacy Policy page",
-        {},
-        async ({ homePage, page }) => {
-          await test.step("Click Privacy Policy link in footer", async () => {
-            await homePage.footer.navigateViaLink(homePage.footer.privacyLink);
-          });
+      test("should navigate to Privacy Policy page", {}, async ({ homePage, page }) => {
+        await test.step("Click Privacy Policy link in footer", async () => {
+          await homePage.footer.navigateViaLink(homePage.footer.privacyLink);
+        });
 
-          await test.step("Verify Privacy URL", async () => {
-            await expect(page).toHaveURL(TestData.urlPatterns.privacy);
-          });
-        },
-      );
+        await test.step("Verify Privacy URL", async () => {
+          await expect(page).toHaveURL(TestData.urlPatterns.privacy);
+        });
+      });
 
-      test(
-        "should navigate to Cookie Policy page",
-        {},
-        async ({ homePage, page }) => {
-          await test.step("Click Cookie Policy link in footer", async () => {
-            await homePage.footer.navigateViaLink(
-              homePage.footer.cookiePolicyLink,
-            );
-          });
+      test("should navigate to Cookie Policy page", {}, async ({ homePage, page }) => {
+        await test.step("Click Cookie Policy link in footer", async () => {
+          await homePage.footer.navigateViaLink(homePage.footer.cookiePolicyLink);
+        });
 
-          await test.step("Verify Cookie Policy URL", async () => {
-            await expect(page).toHaveURL(TestData.urlPatterns.cookie);
-          });
-        },
-      );
+        await test.step("Verify Cookie Policy URL", async () => {
+          await expect(page).toHaveURL(TestData.urlPatterns.cookie);
+        });
+      });
     });
 
     // ── Footer social ───────────────────────────────────────────────────────
 
-    test.describe(
-      "Footer — Discord Link",
-      { tag: [Tags.footer, Tags.social] },
-      () => {
-        test(
-          "should display Discord link with correct href",
-          {},
-          async ({ homePage }) => {
-            await test.step("Verify Discord link href points to discord.com", async () => {
-              await homePage.footer.verifyDiscordLinkHref();
-            });
-          },
-        );
-      },
-    );
+    test.describe("Footer — Discord Link", { tag: [Tags.footer, Tags.social] }, () => {
+      test("should display Discord link with correct href", {}, async ({ homePage }) => {
+        await test.step("Verify Discord link href points to discord.com", async () => {
+          await homePage.footer.verifyDiscordLinkHref();
+        });
+      });
+    });
 
     // ── Footer copyright ────────────────────────────────────────────────────
 
@@ -167,17 +139,11 @@ test.describe(
         });
       });
 
-      test(
-        "should display Valorant footer section",
-        {},
-        async ({ homePage }) => {
-          await test.step("Verify Valorant section visible in footer", async () => {
-            await homePage.footer.verifySectionVisible(
-              homePage.footer.valorant,
-            );
-          });
-        },
-      );
+      test("should display Valorant footer section", {}, async ({ homePage }) => {
+        await test.step("Verify Valorant section visible in footer", async () => {
+          await homePage.footer.verifySectionVisible(homePage.footer.valorant);
+        });
+      });
 
       test(
         "should navigate to Blog from footer",

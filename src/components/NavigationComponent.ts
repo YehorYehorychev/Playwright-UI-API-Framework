@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 import { BaseComponent } from "./BaseComponent";
 
 /**
@@ -33,12 +33,8 @@ export class NavigationComponent extends BaseComponent {
 
     this.navLOL = page.getByRole("link", { name: "LoL", exact: true }).first();
     this.navTFT = page.getByRole("link", { name: "TFT", exact: true }).first();
-    this.navPOE2 = page
-      .getByRole("link", { name: "PoE2", exact: true })
-      .first();
-    this.navDiablo4 = page
-      .getByRole("link", { name: "Diablo 4", exact: true })
-      .first();
+    this.navPOE2 = page.getByRole("link", { name: "PoE2", exact: true }).first();
+    this.navDiablo4 = page.getByRole("link", { name: "Diablo 4", exact: true }).first();
     this.navBorderlands4 = page.getByRole("link", {
       name: "Borderlands 4",
       exact: true,

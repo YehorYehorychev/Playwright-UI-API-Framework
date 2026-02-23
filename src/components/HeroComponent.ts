@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 import { BaseComponent } from "./BaseComponent";
 
 /**
@@ -15,9 +15,7 @@ export class HeroComponent extends BaseComponent {
 
     this.mainHeading = page.getByRole("heading", { level: 1 });
     this.joinGamersText = page.getByText(/JOIN OVER.*MILLION GAMERS/i);
-    this.downloadButton = page
-      .getByRole("link", { name: /Download desktop app/i })
-      .first();
+    this.downloadButton = page.getByRole("link", { name: /Download desktop app/i }).first();
   }
 
   /** Assert the hero section is fully visible. */

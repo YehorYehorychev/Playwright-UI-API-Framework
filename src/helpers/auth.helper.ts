@@ -1,4 +1,4 @@
-import { APIRequestContext } from "@playwright/test";
+import { type APIRequestContext } from "@playwright/test";
 import dotenv from "dotenv";
 import { createLogger } from "../utils/logger";
 import { ApiError, AuthenticationError } from "../errors/test-errors";
@@ -16,9 +16,7 @@ interface AuthResponse {
 /**
  * Perform API login and return authentication cookies
  */
-export async function loginViaAPI(
-  request: APIRequestContext,
-): Promise<AuthResponse> {
+export async function loginViaAPI(request: APIRequestContext): Promise<AuthResponse> {
   const apiUrl = `${process.env.API_BASE_URL}/api/graphql/v1/query`;
   const userEmail = process.env.USER_EMAIL;
   const userPassword = process.env.USER_PASSWORD;
@@ -47,11 +45,7 @@ export async function loginViaAPI(
     });
 
     if (!response.ok()) {
-      throw new ApiError(
-        response.status(),
-        "SignIn mutation returned a non-2xx response",
-        apiUrl,
-      );
+      throw new ApiError(response.status(), "SignIn mutation returned a non-2xx response", apiUrl);
     }
 
     const responseData = await response.json();
@@ -62,9 +56,7 @@ export async function loginViaAPI(
       return { success: true, cookies };
     }
 
-    const gqlErrors = responseData.errors
-      ?.map((e: { message: string }) => e.message)
-      .join("; ");
+    const gqlErrors = responseData.errors?.map((e: { message: string }) => e.message).join("; ");
     log.warn("API authentication rejected by server", { errors: gqlErrors });
     return { success: false };
   } catch (error) {
