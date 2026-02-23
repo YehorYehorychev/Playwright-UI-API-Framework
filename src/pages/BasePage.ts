@@ -120,13 +120,6 @@ export class BasePage {
   }
 
   /**
-   * Wait for specific time
-   */
-  async wait(milliseconds: number): Promise<void> {
-    await this.page.waitForTimeout(milliseconds);
-  }
-
-  /**
    * Accept cookies/dialog if present
    */
   async acceptCookiesIfPresent(): Promise<void> {
