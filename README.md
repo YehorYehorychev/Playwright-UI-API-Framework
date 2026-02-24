@@ -64,7 +64,7 @@ playwright-mcp-tests/
 │   │   └── POE2Page.ts             # Path of Exile 2 page
 │   └── utils/
 │       ├── element-wait.utils.ts   # Shared waitForElement helper (used by BasePage & BaseComponent)
-│       ├── helpers.ts              # General utilities
+│       ├── string.utils.ts         # General-purpose string and date utilities
 │       └── logger.ts               # Structured, levelled console logger
 ├── tests/
 │   ├── api/                        # API / GraphQL tests (27 tests)

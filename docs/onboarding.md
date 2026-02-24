@@ -51,7 +51,7 @@ playwright-mcp-tests/
 │   │   └── TemplatePage.ts     ← copy this when adding a new page
 │   └── utils/
 │       ├── element-wait.utils.ts
-│       ├── helpers.ts
+│       ├── string.utils.ts
 │       └── logger.ts
 ├── tests/
 │   ├── api/

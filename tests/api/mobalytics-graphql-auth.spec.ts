@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { Tags } from "../../src/data/tags";
 import { TestData } from "../../src/data/test-data";
+import { SIGN_IN_MUTATION, ACCOUNT_QUERY } from "../../src/data/graphql-queries";
 import { createLogger } from "../../src/utils/logger";
-import { ApiError } from "../../src/errors/test-errors";
 
 const log = createLogger("GraphQL-Auth");
 
@@ -11,25 +11,6 @@ const log = createLogger("GraphQL-Auth");
 // ─────────────────────────────────────────────────────────────────────────────
 
 const apiUrl = `${process.env.API_BASE_URL}${TestData.api.graphqlEndpoint}`;
-
-const SIGN_IN_MUTATION = `
-  mutation SignIn($email: String!, $password: String!, $continueFrom: String) {
-    signIn(email: $email, password: $password, continueFrom: $continueFrom)
-  }
-`;
-
-const ACCOUNT_QUERY = `
-  query {
-    account {
-      uid
-      email
-      login
-      level
-      referrerCode
-      referralStatus
-    }
-  }
-`;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Suite
@@ -57,13 +38,6 @@ test.describe("Mobalytics API Authentication", { tag: [Tags.api, Tags.auth] }, (
       });
 
       await test.step("Verify HTTP response is successful", async () => {
-        if (!response.ok()) {
-          throw new ApiError(
-            response.status(),
-            "SignIn mutation returned non-2xx response",
-            apiUrl,
-          );
-        }
         expect(response.status()).toBe(200);
       });
 

@@ -1,5 +1,6 @@
 import { type APIRequestContext } from "@playwright/test";
 import dotenv from "dotenv";
+import { type AccountData, ACCOUNT_QUERY, SIGN_IN_MUTATION } from "../data/graphql-queries";
 import { createLogger } from "../utils/logger";
 import { ApiError, AuthenticationError } from "../errors/test-errors";
 
@@ -10,7 +11,7 @@ const log = createLogger("AuthHelper");
 interface AuthResponse {
   success: boolean;
   cookies?: string;
-  accountData?: any;
+  accountData?: AccountData;
 }
 
 /**
@@ -21,17 +22,11 @@ export async function loginViaAPI(request: APIRequestContext): Promise<AuthRespo
   const userEmail = process.env.USER_EMAIL;
   const userPassword = process.env.USER_PASSWORD;
 
-  const signInMutation = `
-    mutation SignIn($email: String!, $password: String!, $continueFrom: String) {
-      signIn(email: $email, password: $password, continueFrom: $continueFrom)
-    }
-  `;
-
   try {
     const response = await request.post(apiUrl, {
       data: {
         operationName: "SignIn",
-        query: signInMutation,
+        query: SIGN_IN_MUTATION,
         variables: {
           email: userEmail,
           password: userPassword,
@@ -71,27 +66,14 @@ export async function loginViaAPI(request: APIRequestContext): Promise<AuthRespo
 /**
  * Get account information after authentication
  */
-export async function getAccountInfo(request: APIRequestContext): Promise<any> {
+export async function getAccountInfo(request: APIRequestContext): Promise<AccountData | null> {
   const apiUrl = `${process.env.API_BASE_URL}/api/graphql/v1/query`;
-
-  const accountQuery = `
-    query {
-      account {
-        uid
-        email
-        login
-        level
-        referrerCode
-        referralStatus
-      }
-    }
-  `;
 
   try {
     const response = await request.post(apiUrl, {
       data: {
         operationName: null,
-        query: accountQuery,
+        query: ACCOUNT_QUERY,
         variables: {},
       },
       headers: {
