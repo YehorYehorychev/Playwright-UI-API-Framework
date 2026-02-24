@@ -25,6 +25,7 @@
 import { test, expect, type APIRequestContext } from "@playwright/test";
 import { Tags } from "../../src/data/tags";
 import { TestData } from "../../src/data/test-data";
+import { SIGN_IN_MUTATION } from "../../src/data/graphql-queries";
 import { createLogger } from "../../src/utils/logger";
 
 const log = createLogger("GraphQL-SignIn-Extended");
@@ -34,12 +35,6 @@ const log = createLogger("GraphQL-SignIn-Extended");
 // ─────────────────────────────────────────────────────────────────────────────
 
 const apiUrl = `${process.env.API_BASE_URL}${TestData.api.graphqlEndpoint}`;
-
-const SIGN_IN_MUTATION = `
-  mutation SignIn($email: String!, $password: String!, $continueFrom: String) {
-    signIn(email: $email, password: $password, continueFrom: $continueFrom)
-  }
-`;
 
 const defaultHeaders = {
   "Content-Type": "application/json",

@@ -21,6 +21,10 @@
 import { test, expect, type APIRequestContext } from "@playwright/test";
 import { Tags } from "../../src/data/tags";
 import { TestData } from "../../src/data/test-data";
+import {
+  SIGN_IN_MUTATION,
+  ACCOUNT_QUERY as ACCOUNT_QUERY_FULL,
+} from "../../src/data/graphql-queries";
 import { createLogger } from "../../src/utils/logger";
 
 const log = createLogger("GraphQL-Account");
@@ -31,25 +35,8 @@ const log = createLogger("GraphQL-Account");
 
 const apiUrl = `${process.env.API_BASE_URL}${TestData.api.graphqlEndpoint}`;
 
-const SIGN_IN_MUTATION = `
-  mutation SignIn($email: String!, $password: String!, $continueFrom: String) {
-    signIn(email: $email, password: $password, continueFrom: $continueFrom)
-  }
-`;
-
-/** Full account field set — the canonical shape the API should return. */
-const ACCOUNT_QUERY_FULL = `
-  query {
-    account {
-      uid
-      email
-      login
-      level
-      referrerCode
-      referralStatus
-    }
-  }
-`;
+// ACCOUNT_QUERY_FULL is imported from graphql-queries (canonical full field set).
+// SIGN_IN_MUTATION is imported from graphql-queries.
 
 /** Partial selection — only two scalar fields. */
 const ACCOUNT_QUERY_PARTIAL = `
