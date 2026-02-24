@@ -1,12 +1,6 @@
 /**
- * Test utilities and helpers
- *
- * NOTE: Do NOT add time-based wait helpers (setTimeout / waitForTimeout) here.
- * In Playwright, always wait for a specific condition instead:
- *   - await expect(locator).toBeVisible()
- *   - await locator.waitFor({ state: 'visible' })
- *   - await page.waitForURL(/pattern/)
- * Hard-coded delays make tests flaky and slow.
+ * General-purpose string and date utilities.
+ * No Playwright dependencies — safe to use anywhere in the codebase.
  */
 
 /**
