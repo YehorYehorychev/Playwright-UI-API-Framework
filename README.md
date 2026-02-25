@@ -429,23 +429,115 @@ test("extra slow test", async ({ page }) => {
 
 ### GitHub Actions Pipeline
 
-The workflow in `.github/workflows/playwright.yml` runs in three stages:
+The workflow in `.github/workflows/playwright.yml` runs automatically on every push and pull request to `main` / `dev`, and can also be triggered manually.
 
 ```
-Push / PR
+Push / PR to main or dev
   │
-  ├─ Stage 1 — Smoke & Critical (Chromium)  ~3 min  ← fast feedback gate
+  ├─ Stage 1 — Smoke & Critical (Chromium)       ~3 min  ← fast feedback gate
+  │            8 workers · fails fast
   │
-  ├─ Stage 2 — Full Regression, 3 shards    ~6–8 min  ← runs after smoke passes
-  │            (each shard: Chromium, 6 workers)
+  ├─ Stage 2 — Full Regression, 3 shards          ~6–8 min  ← runs after smoke passes
+  │            (each shard: Chromium, 6 workers, fail-fast: false)
   │
-  ├─ Stage 3 — Cross-browser Smoke          ~5 min  ← main branch / release PRs only
-  │            (Firefox + WebKit, parallel)
+  ├─ Stage 3 — Cross-browser Smoke                ~5 min  ← main branch / release PRs only
+  │            (Firefox + WebKit in parallel, @smoke grep)
   │
-  └─ Report  — Merge shard results → Allure HTML artifact
+  └─ Report  — Merge shard Allure results → generate HTML → upload artifact
+               + deploy to GitHub Pages (main branch only)
 ```
 
-**Total wall-clock time: ~9 minutes** for a full run.
+**Total wall-clock time: ~9 minutes** for a full run on `main`.
+
+---
+
+### 🔐 Required GitHub Secrets & Variables
+
+> **The pipeline will not work until these are configured in your repository.**
+
+Go to: **GitHub repository → Settings → Secrets and variables → Actions**
+
+#### Repository Secrets (🔒 encrypted, never visible in logs)
+
+| Secret name     | Value                           | Description                                   |
+| --------------- | ------------------------------- | --------------------------------------------- |
+| `USER_EMAIL`    | your account email              | Used by `loginViaAPI` for authenticated tests |
+| `USER_PASSWORD` | your account password           | Used by `loginViaAPI` for authenticated tests |
+| `BASE_URL`      | `https://mobalytics.gg`         | Application under test                        |
+| `API_BASE_URL`  | `https://account.mobalytics.gg` | GraphQL API base URL                          |
+
+**Steps:**
+
+1. Open your repository on GitHub
+2. Go to **Settings → Secrets and variables → Actions → Secrets tab**
+3. Click **"New repository secret"** for each entry above
+4. Enter the name and value → **Add secret**
+
+> ⚠️ `USER_EMAIL` and `USER_PASSWORD` are sensitive — never commit them to code.  
+> The `.env` file is in `.gitignore` for the same reason.
+
+---
+
+### ▶️ Triggering the Pipeline
+
+**Automatic** — happens on every push or PR:
+
+```bash
+git push origin main       # triggers full pipeline
+git push origin dev        # triggers full pipeline (no cross-browser)
+```
+
+**Manual** — via GitHub Actions UI:
+
+1. Repository → **Actions** tab → **"Playwright Tests"** workflow
+2. Click **"Run workflow"**
+3. Optionally fill in:
+   - **Tag filter** — e.g. `@smoke`, `@critical`, `@regression` (runs only matching tests)
+   - **Number of workers** — default `8`
+4. Click **"Run workflow"**
+
+**Manual via GitHub CLI:**
+
+```bash
+# Run smoke tests only on a feature branch
+gh workflow run playwright.yml \
+  --ref feature/my-branch \
+  --field grep="@smoke" \
+  --field workers="4"
+```
+
+---
+
+### 📊 Allure Report on GitHub Pages
+
+After every successful run on `main`, the Allure report is automatically published to:
+
+```
+https://<your-github-username>.github.io/<repo-name>/allure/
+```
+
+> **One-time setup required:**  
+> Repository → **Settings → Pages → Source → Deploy from a branch**  
+> Branch: **`gh-pages`** / Folder: **`/ (root)`** → Save
+>
+> The `gh-pages` branch is created automatically on the first run.
+
+The artifact ZIP is also available for download for 30 days under the **Actions → run → Artifacts** section.
+
+---
+
+### 🧾 CI Reporters
+
+In CI mode (`CI=true`) the following reporters are active:
+
+| Reporter            | Output file                 | Purpose                        |
+| ------------------- | --------------------------- | ------------------------------ |
+| `junit`             | `test-results/junit.xml`    | Machine-readable results       |
+| `json`              | `test-results/results.json` | Structured result data         |
+| `allure-playwright` | `allure-results/`           | Interactive Allure HTML report |
+| `list`              | stdout                      | Real-time log streaming        |
+
+---
 
 ### CI npm scripts
 
