@@ -8,6 +8,10 @@ import config from "./config/test.config";
 export default defineConfig({
   testDir: "./tests",
 
+  /* Exclude template/boilerplate files — they contain unfilled placeholders
+     and must never run in CI or locally. Copy + rename them to use them. */
+  testIgnore: "**/template-*.spec.ts",
+
   /* Run tests in files in parallel */
   fullyParallel: true,
 

@@ -21,9 +21,9 @@ permissions:
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, dev]
   pull_request:
-    branches: [main, develop]
+    branches: [main, dev]
   workflow_dispatch:
     inputs:
       grep:
@@ -82,12 +82,12 @@ jobs:
             npx playwright test --project=chromium --grep "@smoke|@critical" --workers=$WORKERS
           fi
 
-      - name: Upload Playwright report
+      - name: Upload smoke test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: smoke-playwright-report
-          path: playwright-report/
+          name: smoke-test-results
+          path: test-results/
           retention-days: 7
 
   # ─────────────────────────────────────────────────────────────────────────
@@ -189,12 +189,12 @@ jobs:
             --grep "@smoke" \
             --workers=4
 
-      - name: Upload cross-browser report
+      - name: Upload cross-browser results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cross-browser-${{ matrix.browser }}-report
-          path: playwright-report/
+          name: cross-browser-${{ matrix.browser }}-results
+          path: test-results/
           retention-days: 7
 
   # ─────────────────────────────────────────────────────────────────────────
@@ -206,6 +206,9 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -213,6 +216,9 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Download all shard results
         uses: actions/download-artifact@v4
@@ -222,7 +228,7 @@ jobs:
           path: allure-results/
 
       - name: Generate Allure report
-        run: npx allure generate allure-results --clean -o allure-report
+        run: ./node_modules/.bin/allure generate allure-results --clean -o allure-report
 
       - name: Upload Allure report
         uses: actions/upload-artifact@v4
@@ -230,3 +236,12 @@ jobs:
           name: allure-report
           path: allure-report/
           retention-days: 30
+
+      - name: Deploy Allure report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report
+          destination_dir: allure
+          commit_message: "ci: publish Allure report for run ${{ github.run_number }}"
