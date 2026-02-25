@@ -16,6 +16,9 @@
 
 name: Playwright Tests
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main, develop]
@@ -64,10 +67,20 @@ jobs:
       - name: Run smoke & critical tests
         env:
           CI: "true"
-          PARALLEL_WORKERS: "8"
-          BASE_URL: ${{ vars.BASE_URL || 'https://mobalytics.gg' }}
+          PARALLEL_WORKERS: ${{ github.event.inputs.workers || '8' }}
+          BASE_URL: ${{ secrets.BASE_URL || 'https://mobalytics.gg' }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://account.mobalytics.gg' }}
+          USER_EMAIL: ${{ secrets.USER_EMAIL }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
           RETRY_COUNT: "2"
-        run: npx playwright test --project=chromium --grep "@smoke|@critical" --workers=8
+        run: |
+          GREP="${{ github.event.inputs.grep }}"
+          WORKERS="${{ github.event.inputs.workers || '8' }}"
+          if [ -n "$GREP" ]; then
+            npx playwright test --project=chromium --grep "$GREP" --workers=$WORKERS
+          else
+            npx playwright test --project=chromium --grep "@smoke|@critical" --workers=$WORKERS
+          fi
 
       - name: Upload Playwright report
         if: always()
@@ -111,7 +124,10 @@ jobs:
         env:
           CI: "true"
           PARALLEL_WORKERS: "6"
-          BASE_URL: ${{ vars.BASE_URL || 'https://mobalytics.gg' }}
+          BASE_URL: ${{ secrets.BASE_URL || 'https://mobalytics.gg' }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://account.mobalytics.gg' }}
+          USER_EMAIL: ${{ secrets.USER_EMAIL }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
           RETRY_COUNT: "2"
         run: |
           npx playwright test --project=chromium \
@@ -135,7 +151,7 @@ jobs:
   cross-browser:
     name: "Cross-Browser Smoke (${{ matrix.browser }})"
     needs: smoke
-    if: github.ref == 'refs/heads/main' || contains(github.head_ref, 'release/')
+    if: github.ref == 'refs/heads/main' || startsWith(github.head_ref, 'release/')
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -162,7 +178,10 @@ jobs:
         env:
           CI: "true"
           PARALLEL_WORKERS: "4"
-          BASE_URL: ${{ vars.BASE_URL || 'https://mobalytics.gg' }}
+          BASE_URL: ${{ secrets.BASE_URL || 'https://mobalytics.gg' }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://account.mobalytics.gg' }}
+          USER_EMAIL: ${{ secrets.USER_EMAIL }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
           RETRY_COUNT: "2"
         run: |
           npx playwright test \
@@ -202,11 +221,8 @@ jobs:
           merge-multiple: true
           path: allure-results/
 
-      - name: Install Allure CLI
-        run: npm install -g allure-commandline
-
       - name: Generate Allure report
-        run: allure generate allure-results --clean -o allure-report
+        run: npx allure generate allure-results --clean -o allure-report
 
       - name: Upload Allure report
         uses: actions/upload-artifact@v4
