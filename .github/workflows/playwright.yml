@@ -206,6 +206,9 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -233,3 +236,12 @@ jobs:
           name: allure-report
           path: allure-report/
           retention-days: 30
+
+      - name: Deploy Allure report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report
+          destination_dir: allure
+          commit_message: "ci: publish Allure report for run ${{ github.run_number }}"
