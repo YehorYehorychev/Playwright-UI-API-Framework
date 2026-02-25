@@ -82,12 +82,12 @@ jobs:
             npx playwright test --project=chromium --grep "@smoke|@critical" --workers=$WORKERS
           fi
 
-      - name: Upload Playwright report
+      - name: Upload smoke test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: smoke-playwright-report
-          path: playwright-report/
+          name: smoke-test-results
+          path: test-results/
           retention-days: 7
 
   # ─────────────────────────────────────────────────────────────────────────
@@ -189,12 +189,12 @@ jobs:
             --grep "@smoke" \
             --workers=4
 
-      - name: Upload cross-browser report
+      - name: Upload cross-browser results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cross-browser-${{ matrix.browser }}-report
-          path: playwright-report/
+          name: cross-browser-${{ matrix.browser }}-results
+          path: test-results/
           retention-days: 7
 
   # ─────────────────────────────────────────────────────────────────────────
