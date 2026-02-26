@@ -20,10 +20,11 @@ Read through once end-to-end, then keep it open as a quick-reference while writi
 6. [Tags & Test Filtering](#6-tags--test-filtering)
 7. [Test Data & Environment Variables](#7-test-data--environment-variables)
 8. [Running Tests Locally](#8-running-tests-locally)
-9. [Viewing Reports](#9-viewing-reports)
-10. [Common Patterns & Examples](#10-common-patterns--examples)
-11. [Checklist Before Raising a PR](#11-checklist-before-raising-a-pr)
-12. [Further Reading](#12-further-reading)
+9. [CI Setup: GitHub Secrets](#9-ci-setup-github-secrets)
+10. [Viewing Reports](#10-viewing-reports)
+11. [Common Patterns & Examples](#11-common-patterns--examples)
+12. [Checklist Before Raising a PR](#12-checklist-before-raising-a-pr)
+13. [Further Reading](#13-further-reading)
 
 ---
 
@@ -351,9 +352,10 @@ const { email, password } = TestData.credentials.validUser; // reads from .env
 
 ```bash
 BASE_URL=https://mobalytics.gg
-API_BASE_URL=https://api.mobalytics.gg
+API_BASE_URL=https://account.mobalytics.gg
 USER_EMAIL=your-test-account@example.com
 USER_PASSWORD=YourTestPassword123!
+USER_USERNAME=your-account-username
 ```
 
 > Credentials are **never** committed to source control. Rotate them periodically.
@@ -393,7 +395,46 @@ npx playwright test --debug tests/ui/mobalytics-home-smoke.spec.ts
 
 ---
 
-## 9. Viewing Reports
+## 9. CI Setup: GitHub Secrets
+
+The CI pipeline runs on every merge to `main`. For it to work, **five repository secrets** must be configured in GitHub — without them, authenticated tests will fail and the pipeline will error out.
+
+### Where to add them
+
+1. Open your repository on GitHub
+2. Go to **Settings → Secrets and variables → Actions → Secrets tab**
+3. Click **"New repository secret"** for each entry below
+
+### Required secrets
+
+| Secret name     | Example value                   | Description                                       |
+| --------------- | ------------------------------- | ------------------------------------------------- |
+| `USER_EMAIL`    | `your-account@example.com`      | Test account email — used by `loginViaAPI`        |
+| `USER_PASSWORD` | `YourTestPassword123!`          | Test account password                             |
+| `USER_USERNAME` | `your_username`                 | Test account display name — verified in API tests |
+| `BASE_URL`      | `https://mobalytics.gg`         | Application under test                            |
+| `API_BASE_URL`  | `https://account.mobalytics.gg` | GraphQL API base URL                              |
+
+> ⚠️ **Never commit credentials to source code.** The `.env` file is in `.gitignore` for the same reason. Rotate credentials if they are ever accidentally exposed.
+
+### How the pipeline uses them
+
+Each job in the workflow injects these secrets as environment variables:
+
+```yaml
+env:
+  USER_EMAIL: ${{ secrets.USER_EMAIL }}
+  USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+  USER_USERNAME: ${{ secrets.USER_USERNAME }}
+  BASE_URL: ${{ secrets.BASE_URL }}
+  API_BASE_URL: ${{ secrets.API_BASE_URL }}
+```
+
+If a secret is missing, the env var will be an empty string at runtime — tests like `expect(account.login).toBe(username)` will silently compare against `""` and fail.
+
+---
+
+## 10. Viewing Reports
 
 ```bash
 # Run tests + open Allure report automatically
@@ -412,7 +453,7 @@ The Allure report includes:
 
 ---
 
-## 10. Common Patterns & Examples
+## 11. Common Patterns & Examples
 
 ### Wait for a specific element before asserting
 
@@ -462,7 +503,7 @@ test(
 
 ---
 
-## 11. Checklist Before Raising a PR
+## 12. Checklist Before Raising a PR
 
 - [ ] Component locators use `getByRole` / `getByLabel` / `getByTestId` where possible
 - [ ] No raw locator strings inside test spec files
@@ -477,7 +518,7 @@ test(
 
 ---
 
-## 12. Further Reading
+## 13. Further Reading
 
 | Resource                   | Link                                        |
 | -------------------------- | ------------------------------------------- |

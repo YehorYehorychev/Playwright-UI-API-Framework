@@ -176,24 +176,24 @@ test.describe('LoL Page', { tag: [Tags.ui, Tags.lol] }, () => {
 });
 ```
 
-| Tag                  | Value            | Purpose                               |
-| -------------------- | ---------------- | ------------------------------------- |
-| `Tags.smoke`         | `@smoke`         | Fast gate — runs on every push        |
-| `Tags.critical`      | `@critical`      | Must-pass; blocks pipeline            |
-| `Tags.regression`    | `@regression`    | Full coverage — nightly / pre-release |
-| `Tags.ui`            | `@ui`            | All browser-driven tests              |
-| `Tags.api`           | `@api`           | API / GraphQL tests                   |
-| `Tags.navigation`    | `@navigation`    | Navigation flow tests                 |
-| `Tags.visual`        | `@visual`        | Screenshot / visual diff              |
-| `Tags.authenticated` | `@authenticated` | Requires logged-in session            |
-| `Tags.poe2`          | `@poe2`          | Path of Exile 2 section               |
-| `Tags.lol`           | `@lol`           | League of Legends section             |
-| `Tags.responsive`    | `@responsive`    | Mobile viewport tests                 |
-| `Tags.cookie`        | `@cookie`        | Cookie consent banner                 |
-| `Tags.auth`          | `@auth`          | Login / logout / session              |
-| `Tags.hero`          | `@hero`          | Hero section                          |
-| `Tags.footer`        | `@footer`        | Footer area                           |
-| `Tags.statistics`    | `@statistics`    | Statistics section                    |
+| Tag                  | Value            | Purpose                                 |
+| -------------------- | ---------------- | --------------------------------------- |
+| `Tags.smoke`         | `@smoke`         | Fast gate — runs on every merge to main |
+| `Tags.critical`      | `@critical`      | Must-pass; blocks pipeline              |
+| `Tags.regression`    | `@regression`    | Full coverage — nightly / pre-release   |
+| `Tags.ui`            | `@ui`            | All browser-driven tests                |
+| `Tags.api`           | `@api`           | API / GraphQL tests                     |
+| `Tags.navigation`    | `@navigation`    | Navigation flow tests                   |
+| `Tags.visual`        | `@visual`        | Screenshot / visual diff                |
+| `Tags.authenticated` | `@authenticated` | Requires logged-in session              |
+| `Tags.poe2`          | `@poe2`          | Path of Exile 2 section                 |
+| `Tags.lol`           | `@lol`           | League of Legends section               |
+| `Tags.responsive`    | `@responsive`    | Mobile viewport tests                   |
+| `Tags.cookie`        | `@cookie`        | Cookie consent banner                   |
+| `Tags.auth`          | `@auth`          | Login / logout / session                |
+| `Tags.hero`          | `@hero`          | Hero section                            |
+| `Tags.footer`        | `@footer`        | Footer area                             |
+| `Tags.statistics`    | `@statistics`    | Statistics section                      |
 
 ### Custom Fixtures (`src/fixtures/test.fixtures.ts`)
 
@@ -429,10 +429,10 @@ test("extra slow test", async ({ page }) => {
 
 ### GitHub Actions Pipeline
 
-The workflow in `.github/workflows/playwright.yml` runs automatically on every push and pull request to `main` / `dev`, and can also be triggered manually.
+The workflow in `.github/workflows/playwright.yml` runs automatically on every merge (push) to `main`, and can also be triggered manually.
 
 ```
-Push / PR to main or dev
+Merge / Push to main
   │
   ├─ Stage 1 — Smoke & Critical (Chromium)       ~3 min  ← fast feedback gate
   │            8 workers · fails fast
@@ -463,6 +463,7 @@ Go to: **GitHub repository → Settings → Secrets and variables → Actions**
 | --------------- | ------------------------------- | --------------------------------------------- |
 | `USER_EMAIL`    | your account email              | Used by `loginViaAPI` for authenticated tests |
 | `USER_PASSWORD` | your account password           | Used by `loginViaAPI` for authenticated tests |
+| `USER_USERNAME` | your account username           | Verified in account assertion tests           |
 | `BASE_URL`      | `https://mobalytics.gg`         | Application under test                        |
 | `API_BASE_URL`  | `https://account.mobalytics.gg` | GraphQL API base URL                          |
 
@@ -480,11 +481,11 @@ Go to: **GitHub repository → Settings → Secrets and variables → Actions**
 
 ### ▶️ Triggering the Pipeline
 
-**Automatic** — happens on every push or PR:
+**Automatic** — happens on every merge (push) to `main`:
 
 ```bash
 git push origin main       # triggers full pipeline
-git push origin dev        # triggers full pipeline (no cross-browser)
+# or merge any PR into main via GitHub UI
 ```
 
 **Manual** — via GitHub Actions UI:
