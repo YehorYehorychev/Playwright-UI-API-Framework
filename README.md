@@ -1,5 +1,7 @@
 # 🎭 Playwright Test Automation Framework
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Professional test automation framework for **[Mobalytics.gg](https://mobalytics.gg)** — a gaming analytics platform. Built with **Playwright**, **TypeScript**, **Page Object Model**, **Component Objects**, and **Allure Reports**.
 
 ---
@@ -603,3 +605,9 @@ The `mobalytics-cookie.spec.ts` tests use raw `page.goto()` intentionally. All o
 | CI run time        | **~9 min** (sharded, Chromium)  |
 
 Happy Testing! 🎉
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
