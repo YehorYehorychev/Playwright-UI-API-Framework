@@ -21,9 +21,7 @@ permissions:
 
 on:
   push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
+    branches: [main]
   workflow_dispatch:
     inputs:
       grep:
@@ -72,6 +70,7 @@ jobs:
           API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://account.mobalytics.gg' }}
           USER_EMAIL: ${{ secrets.USER_EMAIL }}
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+          USER_USERNAME: ${{ secrets.USER_USERNAME }}
           RETRY_COUNT: "2"
         run: |
           GREP="${{ github.event.inputs.grep }}"
@@ -128,6 +127,7 @@ jobs:
           API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://account.mobalytics.gg' }}
           USER_EMAIL: ${{ secrets.USER_EMAIL }}
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+          USER_USERNAME: ${{ secrets.USER_USERNAME }}
           RETRY_COUNT: "2"
         run: |
           npx playwright test --project=chromium \
@@ -177,11 +177,13 @@ jobs:
       - name: Run cross-browser smoke
         env:
           CI: "true"
+          CROSS_BROWSER: "true"
           PARALLEL_WORKERS: "4"
           BASE_URL: ${{ secrets.BASE_URL || 'https://mobalytics.gg' }}
           API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://account.mobalytics.gg' }}
           USER_EMAIL: ${{ secrets.USER_EMAIL }}
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+          USER_USERNAME: ${{ secrets.USER_USERNAME }}
           RETRY_COUNT: "2"
         run: |
           npx playwright test \
